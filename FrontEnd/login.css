@@ -1,0 +1,119 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: #ece3ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 1150px;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    background: #ffffff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* LEFT */
+.left {
+    padding: 60px;
+}
+
+.left h2 {
+    text-align: center;
+    margin-bottom: 55px;
+    font-size: 30px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: #3e3d3d;
+    margin-bottom: 30px;
+}
+
+.form .input-group {
+    background: #f2f1ff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    margin-left: 70px;
+    margin-bottom: 15px;
+    width: 70%;
+}
+
+.icon {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    background: none;
+    width: 100%;
+    font-size: 14px;
+    color:black;
+}
+
+.btn-login {
+    width: 20%;
+    height: 20%;
+    background: #6a55ff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 15px 0px 0px 185px;
+    font-size: 15px;
+}
+
+.divider-text {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 23px;
+    font-weight: 20px;
+    color: black;
+}
+
+.register {
+    height: 35px;
+    width: 110px;
+    border-radius: 9px;
+    border-style: none;
+    background-color: #2f18dc;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    margin: 10px 0px 0px 175px;
+}
+
+/* RIGHT */
+.right {
+    background: linear-gradient(160deg, #7c58ff8d, #6e4dffc9);
+    position: relative;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-img {
+    width: 100%;
+    border-radius: 20px;
+}
