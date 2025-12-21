@@ -1,49 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mero Kharcha & Bachat Tracker-Login Page</title>
-    <link rel="stylesheet" href="login.css">
+    <title>Mero Kharcha & Bachat Tracker</title>
+    <link rel="stylesheet" href="index.css">
 </head>
-
 <body>
-    <div class="wrapper">
-    <div class="card">
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo">Mero Kharcha & Bachat Tracker<span>.</span></div>
+        <nav>
+            <a href="#">Account</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
 
-        <!-- LEFT SIDE -->
-        <div class="left">
-            <h2>LOGIN</h2>
-            <p class="subtitle">Welcome to Mero Kharcha & Bachat Tracker</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>
+                Welcome to <span>Mero Kharcha & Bachat Tracker.</span><br>
+                Track and manage your expenses with ease.
+            </h1>
+            <p>
+                Start tracking your daily expenses from today.
+            </p>
 
-            <form class="form">
-                <div class="input-group">
-                    <span class="icon">👤</span>
-                    <input type="text" placeholder="Username">
-                </div>
-
-                <div class="input-group">
-                    <span class="icon">🔒</span>
-                    <input type="password" placeholder="Password">
-                </div>
-
-                <button class="btn-login">Login</button>
-
-                <p class="divider-text">Haven't register yet!</p>
-                
-                <button type="button" class="register" id="registerBtn">Register</button>
-
-            </form>
+            <div class="buttons">
+                <a href="login.html" class="btn primary">Start Now →</a>
+                <a href="register.html" class="btn secondary">Sign Up</a>
+            </div>
         </div>
 
-        <!-- RIGHT SIDE -->
-        <div class="right">
-            <img src="Logo1.png" alt="Logo" class="logo-img">
+        <div class="hero-image">
+            <img src="expense illustration.png" alt="Expense Illustration">
         </div>
-        
-    </div>
-</div>
+    </section>
 </body>
-
 </html>

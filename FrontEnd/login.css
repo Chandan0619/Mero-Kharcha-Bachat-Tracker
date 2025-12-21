@@ -28,6 +28,27 @@ body {
 }
 
 /* LEFT */
+.navbar {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+}
+
+.navbar nav a {
+    text-decoration: none;
+    color: black;
+    font-size: 17px;
+    font-style: bold;
+}
+
+.navbar nav a img {
+    width: 15px;
+}
+
+.navbar nav a:hover {
+    color: #2f5bff;
+}
+
 .left {
     padding: 60px;
 }
@@ -41,8 +62,13 @@ body {
 .subtitle {
     text-align: center;
     font-size: 15px;
+    font-weight: 100px;
     color: #3e3d3d;
     margin-bottom: 30px;
+}
+.subtitle span{
+    color:#2f5bff;
+    font-size: 17px;
 }
 
 .form .input-group {
