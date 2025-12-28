@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mero Kharcha & Bachat Tracker - Register</title>
+    <link rel="stylesheet" href="{% static 'accounts/login.css' %}">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="card">
+            <div class="left">
+                <h2>REGISTER</h2>
+                <p class="subtitle">Create a new account</p>
+
+                {% if messages %}
+                {% for message in messages %}
+                <p style="color: red; font-size: 0.8rem;">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+
+                <form class="form" method="POST" action="{% url 'register' %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <span class="icon">👤</span>
+                        <input type="text" name="username" placeholder="Username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="icon">📧</span>
+                        <input type="email" name="email" placeholder="Email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="icon">🔒</span>
+                        <input type="password" name="password" placeholder="Password" required>
+                    </div>
+
+                    <button type="submit" class="btn-register">Register</button>
+
+                    <p class="divider-text">Already have an account?</p>
+
+                    <a href="{% url 'login' %}">
+                        <button type="button" class="login-link">Login</button>
+                    </a>
+                </form>
+            </div>
+
+            <div class="right">
+                <img src="{% static 'accounts/Logo1.png' %}" alt="Logo" class="logo-img">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
