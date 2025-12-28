@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mero Kharcha & Bachat Tracker - Dashboard</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f4fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .welcome-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Mero Kharcha & Bachat</h1>
+        <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h2>Welcome back, {{ request.user.username }}!</h2>
+            <p>This is your dashboard. Track your expenses and savings here.</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
