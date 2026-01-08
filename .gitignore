@@ -1,0 +1,12 @@
+# Don't save database files
+*.sqlite3
+*.db
+
+# Don't save macOS system files
+.DS_Store
+
+# Don't save Python temporary files
+__pycache__/
+*.pyc
+venv/
+.env
