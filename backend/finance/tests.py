@@ -1,9 +1,8 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from finance.models import Income, Expense, SavingsGoal, Budget, Reminder
+from finance.models import Income, Expense
 from django.urls import reverse
 from datetime import date
-from django.utils import timezone
 
 class FinanceTests(TestCase):
     def setUp(self):
