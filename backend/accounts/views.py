@@ -6,7 +6,6 @@ from django.contrib import messages
 
 
 @login_required
-@login_required
 def index(request):
     return redirect('dashboard')
 
