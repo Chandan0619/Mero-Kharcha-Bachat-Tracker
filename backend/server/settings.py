@@ -88,10 +88,8 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('DB_PORT', '3306'),
-                ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+    }
 }
-
-
 
 
 # Password validation
@@ -135,27 +133,7 @@ STATICFILES_DIRS = [
 
 LOGIN_URL = 'login'
 
-                from dotenv import load_dotenv
-                import os
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 
-                # Ensure .env is loaded from the parent directory of this file (Backend/)
-                load_dotenv(os.path.join(BASE_DIR, ".env"))
-
-                if os.getenv('DB_NAME') and os.getenv('DB_USER'):
-                    DATABASES = {
-                        'default': {
-                            'ENGINE': 'django.db.backends.mysql',
-                            'NAME': os.getenv('DB_NAME', 'mero_kharcha_db'),
-                            'USER': os.getenv('DB_USER', 'root'),
-                            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-                            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-                            'PORT': os.getenv('DB_PORT', '3306'),
-                        }
-                    }
-                else:
-                    DATABASES = {
-                        'default': {
-                            'ENGINE': 'django.db.backends.sqlite3',
-                            'NAME': BASE_DIR / 'db.sqlite3',
-                        }
-                    }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
