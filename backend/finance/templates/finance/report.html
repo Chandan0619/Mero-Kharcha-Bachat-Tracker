@@ -1,0 +1,42 @@
+{% extends 'finance/base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Financial Report</h2>
+
+    <div class="stat-grid">
+        <div class="stat-card">
+            <h4>Total Income</h4>
+            <div class="stat-value text-success">${{ income_total }}</div>
+        </div>
+        <div class="stat-card">
+            <h4>Total Expenses</h4>
+            <div class="stat-value text-danger">${{ expense_total }}</div>
+        </div>
+    </div>
+
+    <h3>Expenses by Category</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        {% for item in expenses_by_category %}
+        <tr>
+            <td>{{ item.category }}</td>
+            <td class="text-danger">-${{ item.total }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2" style="color: #aaa; text-align: center;">No expenses recorded.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

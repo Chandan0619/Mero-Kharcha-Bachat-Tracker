@@ -6,8 +6,9 @@ from django.contrib import messages
 
 
 @login_required
+@login_required
 def index(request):
-    return render(request, 'accounts/index.html')
+    return redirect('dashboard')
 
 
 def register_view(request):
@@ -41,7 +42,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('index')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Invalid username or password')
 
