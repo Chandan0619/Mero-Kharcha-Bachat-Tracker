@@ -40,6 +40,38 @@
             overflow: hidden;
             position: relative;
         }
+        
+        /* navbar placed at top-right of viewport */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .navbar nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #222;
+            font-size: 20px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.85);
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        .navbar nav a img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .navbar nav a:hover {
+            color: #2f5bff;
+            transform: translateY(-1px);
+        }
 
         /* Left Section (Form) */
         .left {
@@ -199,6 +231,12 @@
             .logo-img {
                 width: 50%;
             }
+
+            /* Make navbar smaller on mobile */
+            .navbar nav a {
+                font-size: 16px;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -207,6 +245,12 @@
     <div class="wrapper">
         <div class="card">
             <div class="left">
+                <header class="navbar">
+                    <nav>
+                        <a href="{% url 'index' %}"><img src="{% static 'accounts/house.svg' %}"
+                                alt="home icon">Home</a>
+                    </nav>
+                </header>
                 <h2>LOGIN</h2>
                 <p class="subtitle">Welcome to Mero Kharcha & Bachat Tracker</p>
 

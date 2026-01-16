@@ -7,11 +7,11 @@
     <div class="stat-grid">
         <div class="stat-card">
             <h4>Total Income</h4>
-            <div class="stat-value text-success">${{ income_total }}</div>
+            <div class="stat-value text-success">Rs.{{ income_total }}</div>
         </div>
         <div class="stat-card">
             <h4>Total Expenses</h4>
-            <div class="stat-value text-danger">${{ expense_total }}</div>
+            <div class="stat-value text-danger">Rs.{{ expense_total }}</div>
         </div>
     </div>
 
@@ -26,7 +26,7 @@
         {% for item in expenses_by_category %}
         <tr>
             <td>{{ item.category }}</td>
-            <td class="text-danger">-${{ item.total }}</td>
+            <td class="text-danger">-Rs.{{ item.total }}</td>
         </tr>
         {% empty %}
         <tr>

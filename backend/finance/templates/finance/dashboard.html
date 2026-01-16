@@ -4,15 +4,15 @@
 <div class="stat-grid">
     <div class="card stat-card">
         <h4>Total Income</h4>
-        <div class="stat-value" style="color: #27ae60;">${{ income_total }}</div>
+        <div class="stat-value" style="color: #27ae60;">Rs.{{ income_total }}</div>
     </div>
     <div class="card stat-card">
         <h4>Total Expenses</h4>
-        <div class="stat-value" style="color: #c0392b;">${{ expense_total }}</div>
+        <div class="stat-value" style="color: #c0392b;">Rs.{{ expense_total }}</div>
     </div>
     <div class="card stat-card">
         <h4>Net Savings</h4>
-        <div class="stat-value {% if savings >= 0 %}text-primary{% else %}text-danger{% endif %}">${{ savings }}</div>
+        <div class="stat-value {% if savings >= 0 %}text-primary{% else %}text-danger{% endif %}">Rs.{{ savings }}</div>
     </div>
 </div>
 
@@ -35,7 +35,7 @@
             <tr>
                 <td>{{ item.source }}</td>
                 <td>{{ item.date }}</td>
-                <td style="color: #27ae60; font-weight: bold;">+${{ item.amount }}</td>
+                <td style="color: #27ae60; font-weight: bold;">Rs.{{ item.amount }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -51,7 +51,7 @@
             <tr>
                 <td>{{ item.category }}</td>
                 <td>{{ item.date }}</td>
-                <td style="color: #c0392b; font-weight: bold;">-${{ item.amount }}</td>
+                <td style="color: #c0392b; font-weight: bold;">Rs.{{ item.amount }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -75,7 +75,7 @@
         {% for budget in budgets %}
         <tr>
             <td>{{ budget.category }}</td>
-            <td>${{ budget.limit_amount }}</td>
+            <td>Rs.{{ budget.limit_amount }}</td>
             <td>{{ budget.period }}</td>
         </tr>
         {% empty %}

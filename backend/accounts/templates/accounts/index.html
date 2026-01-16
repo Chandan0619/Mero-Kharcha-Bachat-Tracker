@@ -4,68 +4,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mero Kharcha & Bachat Tracker - Dashboard</title>
+    <title>Mero Kharcha & Bachat Tracker</title>
     {% load static %}
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f4fc;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
+        body {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+
+        /* Navbar */
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 25px 80px;
+            background-color: #f8f9ff;
         }
 
-        .container {
-            padding: 20px;
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2f5bff;
         }
 
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 8px 16px;
-            border-radius: 4px;
+        .logo span {
+            color: #000;
+        }
+
+        .navbar nav a {
+            margin-left: 40px;
             text-decoration: none;
-            transition: background 0.3s;
+            color: #5a5a5a;
+            font-size: 19px;
         }
 
-        .btn-logout:hover {
-            background: rgba(255, 255, 255, 0.4);
+        .navbar nav a:hover {
+            color: #2f5bff;
         }
 
-        .welcome-card {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px;
+            height: 700px;
+        }
+
+        .hero-text {
+            max-width: 520px;
+            margin-top: 5px;
+        }
+
+        .hero-text h1 {
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .hero-text h1 span {
+            color: #2f5bff;
+            font-size: 20px;
+        }
+
+        .hero-text p {
+            font-size: 16px;
+            color: #6a6a6a;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn.primary {
+            background-color: #2f5bff;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background-color: #2448cc;
+        }
+
+        .btn.secondary {
+            background-color: #e8ecff;
+            color: #2f5bff;
+        }
+
+        .btn.secondary:hover {
+            background-color: #d9e0ff;
+        }
+
+        /* Hero Image */
+        .hero-image img {
+            max-width: 520px;
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: #f8f9ff;
+            padding: 40px 80px;
+            color: #1f2937;
+            font-size: 15px;
+        }
+
+        .site-footer .footer-container {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-left {
+            flex: 1 1 320px;
+            min-width: 220px;
+        }
+
+        .footer-right {
+            flex: 0 0 260px;
+            min-width: 180px;
+        }
+
+        .site-footer h2,
+        .site-footer h3 {
+            margin-bottom: 12px;
+        }
+
+        .site-footer p {
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .team-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .team-list li {
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .footer-bottom {
             text-align: center;
-            margin-top: 50px;
+            padding-top: 18px;
+            font-size: 13px;
+            color: purple;
         }
     </style>
 </head>
 
 <body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="logo">Mero Kharcha & Bachat Tracker<span>.</span></div>
+        <nav>
+            <a href="#About">About Project</a>
+        </nav>
+    </header>
 
-    <div class="header">
-        <h1>Mero Kharcha & Bachat</h1>
-        <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
-    </div>
+    <!-- Hero Section -->
+    <main>
+        <section class="hero">
+            <div class="hero-text">
+                <h1>
+                    Welcome to <span>Mero Kharcha & Bachat Tracker.</span><br>
+                    Track and manage your expenses with ease.
+                </h1>
+                <p>
+                    Start tracking your daily expenses from today.
+                </p>
 
-    <div class="container">
-        <div class="welcome-card">
-            <h2>Welcome back, {{ request.user.username }}!</h2>
-            <p>This is your dashboard. Track your expenses and savings here.</p>
+                <div class="buttons">
+                    <a href="{% url 'login' %}" class="btn primary">Start Now →</a>
+                    <a href="{% url 'register' %}" class="btn secondary">Sign Up</a>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <img src="{% static 'accounts/expense illustration.png' %}" alt="Expense Illustration">
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo" aria-label="Site footer" id="About">
+        <div class="footer-container">
+            <div class="footer-left">
+                <h2>About Project</h2>
+                <p>Mero Kharcha & Bachat Tracker is a simple and efficient expense tracking and savings recommendation
+                    system designed to help users manage their finances effectively. This project is an end semester
+                    project.</p>
+            </div>
+
+            <div class="footer-right">
+                <h3>Team Members</h3>
+                <ul class="team-list">
+                    <li>Saumyaa Neupane</li>
+                    <li>Lasata Dangol</li>
+                    <li>Raj Bikram Thapa</li>
+                    <li>Jenish Jung Thapa</li>
+                    <li>Chandan Kr. Chaudhary</li>
+                </ul>
+            </div>
         </div>
-    </div>
-
+        <div class="footer-bottom">Made with ❤️ in team</div>
+    </footer>
 </body>
 
 </html>

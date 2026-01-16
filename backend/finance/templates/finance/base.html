@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Finance Dashboard{% endblock %}</title>
+    <title>{% block title %}Dashboard{% endblock %}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,7 +21,7 @@
         }
 
         nav {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
             padding: 15px 0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -42,6 +42,7 @@
             color: #ecf0f1;
             text-decoration: none;
             margin-left: 20px;
+            margin-right: 0px;
             font-weight: 500;
             transition: color 0.3s;
         }
@@ -185,7 +186,7 @@
 <body>
     <nav>
         <div class="container">
-            <h3><a href="{% url 'dashboard' %}" style="margin:0; color: #fff;">Finance Tracker</a></h3>
+            <h3><a href="{% url 'dashboard' %}" style="margin:0; color: #fff;">Mero Kharcha & Bachat Tracker</a></h3>
             <div>
                 <a href="{% url 'dashboard' %}">Dashboard</a>
                 <a href="{% url 'finance_report' %}">Reports</a>
