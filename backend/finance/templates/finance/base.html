@@ -4,199 +4,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard{% endblock %}</title>
+    <title>{% block title %}Expenditure{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary-bg: #f8f9fa;
+            --sidebar-bg: #0d2149;
+            --sidebar-text: #ffffff;
+            --sidebar-hover: #1b3a70;
+            --topbar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --accent-blue: #3b82f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background: #f4f7f6;
-            color: #333;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        nav .container {
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
             display: flex;
-            justify-content: space-between;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
             align-items: center;
-            padding: 0 20px;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
-        nav h3 {
-            margin: 0;
+        .sidebar-brand i {
+            font-size: 1.8rem;
         }
 
-        nav a {
-            color: #ecf0f1;
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
             text-decoration: none;
-            margin-left: 20px;
-            margin-right: 0px;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
-            transition: color 0.3s;
+            transition: all 0.2s;
         }
 
-        nav a:hover {
-            color: #3498db;
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--sidebar-text);
+            background-color: var(--sidebar-hover);
         }
 
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            margin-left: 240px;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 240px);
+            /* Explicit width calculation */
+            min-width: 0;
+            /* Allow content to shrink */
+        }
+
+        /* Sidebar Collapsed State */
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-brand span,
+        .sidebar.collapsed .nav-item span {
+            display: none;
+        }
+
+        .main-container.collapsed {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 70px;
+            background-color: var(--topbar-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .menu-toggle {
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            background-color: #f3f4f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            /* Use max-width instead of width */
+            flex: 1;
+            /* Allow it to grow/shrink */
+            margin: 0 20px;
+        }
+
+        .search-btn {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 32px;
+        }
+
+        /* Recurring Components */
         .card {
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-            border: 1px solid #eee;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 24px;
         }
 
         .btn {
-            display: inline-block;
             padding: 10px 20px;
-            background: #3498db;
-            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
             text-decoration: none;
-            border-radius: 5px;
-            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
             cursor: pointer;
-            transition: background 0.3s;
-            font-size: 0.95em;
+            border: none;
         }
 
-        .btn:hover {
-            background: #2980b9;
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
         }
 
-        .btn-secondary {
-            background: #95a5a6;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
+        .btn-primary:hover {
+            opacity: 0.9;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ecf0f1;
-            text-align: left;
         }
 
         th {
-            color: #7f8c8d;
+            text-align: left;
+            padding: 12px;
+            color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 0.85rem;
             text-transform: uppercase;
+            border-bottom: 1px solid #f3f4f6;
         }
 
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.95rem;
         }
 
-        .stat-card {
-            text-align: center;
-            padding: 30px;
-        }
+        @media (max-width: 1024px) {
+            .sidebar:not(.collapsed) {
+                /* Even if not collapsed via class, force it on mobile unless we have a different mobile menu strategy */
+                width: 80px;
+            }
 
-        .stat-card h4 {
-            margin: 0 0 10px 0;
-            color: #7f8c8d;
-            font-weight: 600;
-        }
+            .sidebar:not(.collapsed) .sidebar-brand span,
+            .sidebar:not(.collapsed) .nav-item span {
+                display: none;
+            }
 
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
+            .main-container:not(.collapsed) {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
 
-        h1,
-        h2,
-        h3 {
-            color: #2c3e50;
-            margin-top: 0;
-        }
-
-        form p {
-            margin-bottom: 20px;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        input[type="datetime-local"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 1em;
-            margin-top: 5px;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-
-        .action-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .text-success {
-            color: #27ae60;
-        }
-
-        .text-danger {
-            color: #c0392b;
-        }
-
-        .text-primary {
-            color: #2980b9;
+            .search-container {
+                max-width: 200px;
+                margin: 0 10px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <nav>
-        <div class="container">
-            <h3><a href="{% url 'dashboard' %}" style="margin:0; color: #fff;">Mero Kharcha & Bachat Tracker</a></h3>
-            <div>
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'finance_report' %}">Reports</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            </div>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <span>Mero Kharcha & Bachat Tracker</span>
         </div>
-    </nav>
-    <div class="container">
-        {% block content %}{% endblock %}
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fa-solid fa-table-columns"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'add_income' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'add_income' %}active{% endif %}">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <span>Income</span>
+            </a>
+            <a href="{% url 'add_expense' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'add_expense' %}active{% endif %}">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Expense</span>
+            </a>
+            <a href="{% url 'finance_report' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'finance_report' %}active{% endif %}">
+                <i class="fa-solid fa-list-ul"></i>
+                <span>Recent Transaction</span>
+            </a>
+            <a href="{% url 'add_budget' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'add_budget' %}active{% endif %}">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Set Budget</span>
+            </a>
+            <a href="{% url 'add_savings' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'add_savings' %}active{% endif %}">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Savings Goal</span>
+            </a>
+            <a href="{% url 'finance_report' %}" class="nav-item">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>Report</span>
+            </a>
+            <a href="{% url 'add_reminder' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'add_reminder' %}active{% endif %}">
+                <i class="fa-solid fa-clock"></i>
+                <span>Reminders</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="padding: 0;">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Log out</span>
+            </a>
+        </div>
     </div>
+
+    <div class="main-container">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="menu-toggle">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" placeholder="Search...">
+                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+
+            <div class="topbar-right">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" alt="User">
+                    </div>
+                    <div class="user-name">{{ user.username|default:"User" }}</div>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContainer = document.querySelector('.main-container');
+
+            // Toggle function
+            function toggleSidebar() {
+                sidebar.classList.toggle('collapsed');
+                mainContainer.classList.toggle('collapsed');
+
+                // Help Chart.js and other responsive elements recalculate
+                sidebar.addEventListener('transitionend', function () {
+                    window.dispatchEvent(new Event('resize'));
+                }, { once: true });
+            }
+
+            menuToggle.addEventListener('click', toggleSidebar);
+
+            // Initial state based on screen size (only once on load)
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.add('collapsed');
+                mainContainer.classList.add('collapsed');
+            }
+        });
+    </script>
 </body>
 
 </html>

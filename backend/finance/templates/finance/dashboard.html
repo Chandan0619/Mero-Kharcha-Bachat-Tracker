@@ -1,128 +1,284 @@
 {% extends 'finance/base.html' %}
 
+{% block page_title %}Dashboard{% endblock %}
+
 {% block content %}
-<div class="stat-grid">
-    <div class="card stat-card">
-        <h4>Total Income</h4>
-        <div class="stat-value" style="color: #27ae60;">Rs.{{ income_total }}</div>
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-main);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .stat-trend {
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--success);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .icon-blue {
+        background-color: #dbeafe;
+        color: #3b82f6;
+    }
+
+    .icon-green {
+        background-color: #dcfce7;
+        color: #22c55e;
+    }
+
+    .icon-yellow {
+        background-color: #fef9c3;
+        color: #eab308;
+    }
+
+    .icon-pink {
+        background-color: #fce7f3;
+        color: #ec4899;
+    }
+
+    .chart-container {
+        padding: 24px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        height: 400px;
+        /* Added fixed height for Chart.js */
+    }
+
+    .chart-header {
+        margin-bottom: 24px;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .category-container {
+        padding: 24px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        position: relative;
+    }
+
+    .fab {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: var(--accent-blue);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        text-decoration: none;
+        transition: transform 0.2s;
+        z-index: 1000;
+    }
+
+    .fab:hover {
+        transform: scale(1.1);
+    }
+
+    @media (max-width: 1200px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dashboard-grid">
+     <!-- Today's Expense -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Today's Expense</span>
+            <span class="stat-value">Rs. {{ today_expense|floatformat:0 }}</span>
+            <span class="stat-trend"><i class="fa-solid fa-calendar-day"></i> Today</span>
+        </div>
     </div>
-    <div class="card stat-card">
-        <h4>Total Expenses</h4>
-        <div class="stat-value" style="color: #c0392b;">Rs.{{ expense_total }}</div>
+      <!-- Total Expense -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Total Expense</span>
+            <span class="stat-value">Rs. {{ expense_total|floatformat:0 }}</span>
+        </div>
     </div>
-    <div class="card stat-card">
-        <h4>Net Savings</h4>
-        <div class="stat-value {% if savings >= 0 %}text-primary{% else %}text-danger{% endif %}">Rs.{{ savings }}</div>
+    <!-- Total Income -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Total Income</span>
+            <span class="stat-value">Rs. {{ income_total|floatformat:0 }}</span>
+        </div>
+        <div class="stat-icon icon-green">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+        </div>
+    </div>
+
+    <!-- Total Savings -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Total Savings</span>
+            <span class="stat-value">Rs. {{ savings|floatformat:0 }}</span>
+        </div>
+        <div class="stat-icon icon-blue">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <h3>Quick Actions</h3>
-    <div class="action-bar">
-        <a href="{% url 'add_income' %}" class="btn">Add Income</a>
-        <a href="{% url 'add_expense' %}" class="btn" style="background: #e74c3c;">Add Expense</a>
-        <a href="{% url 'add_savings' %}" class="btn" style="background: #8e44ad;">Add Savings Goal</a>
-        <a href="{% url 'add_budget' %}" class="btn" style="background: #f39c12;">Set Budget</a>
-        <a href="{% url 'add_reminder' %}" class="btn" style="background: #2c3e50;">Add Reminder</a>
-    </div>
+<div class="chart-container">
+    <div class="chart-header">Expense Chart</div>
+    <canvas id="expenseChart" height="100"></canvas>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-    <div class="card">
-        <h3>Recent Income</h3>
-        <table>
-            {% for item in recent_income %}
-            <tr>
-                <td>{{ item.source }}</td>
-                <td>{{ item.date }}</td>
-                <td style="color: #27ae60; font-weight: bold;">Rs.{{ item.amount }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" style="color: #aaa; text-align: center;">No recent income.</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <div class="card">
-        <h3>Recent Expenses</h3>
-        <table>
-            {% for item in recent_expenses %}
-            <tr>
-                <td>{{ item.category }}</td>
-                <td>{{ item.date }}</td>
-                <td style="color: #c0392b; font-weight: bold;">Rs.{{ item.amount }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" style="color: #aaa; text-align: center;">No recent expenses.</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-</div>
-
-<div class="card">
-    <h3>Budgets</h3>
+<div class="category-container">
+    <div class="chart-header">Category Table</div>
     <table>
         <thead>
             <tr>
                 <th>Category</th>
-                <th>Limit</th>
-                <th>Period</th>
+                <th>Total Spent</th>
             </tr>
         </thead>
-        {% for budget in budgets %}
-        <tr>
-            <td>{{ budget.category }}</td>
-            <td>Rs.{{ budget.limit_amount }}</td>
-            <td>{{ budget.period }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3" style="color: #aaa; text-align: center;">No budgets set.</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<div class="card">
-    <h3>Savings Goals</h3>
-    <table>
-        <thead>
+        <tbody>
+            {% for cat in categories %}
             <tr>
-                <th>Name</th>
-                <th>Target</th>
-                <th>Current</th>
-                <th>Date</th>
+                <td>{{ cat.category }}</td>
+                <td style="font-weight: 600;">Rs. {{ cat.total|floatformat:2 }}</td>
             </tr>
-        </thead>
-        {% for goal in savings_goals %}
-        <tr>
-            <td>{{ goal.name }}</td>
-            <td>${{ goal.target_amount }}</td>
-            <td>${{ goal.current_amount }}</td>
-            <td>{{ goal.target_date }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" style="color: #aaa; text-align: center;">No savings goals.</td>
-        </tr>
-        {% endfor %}
+            {% empty %}
+            <tr>
+                <td colspan="2" style="text-align: center; color: var(--text-muted);">No data available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 
-<div class="card">
-    <h3>Reminders</h3>
-    <ul>
-        {% for reminder in reminders %}
-        <li style="margin-bottom: 10px;">
-            <strong>{{ reminder.title }}</strong>: {{ reminder.message }}
-            <span style="color: #7f8c8d; font-size: 0.9em;">({{ reminder.reminder_date }})</span>
-        </li>
-        {% empty %}
-        <li style="color: #aaa; list-style: none; text-align: center;">No active reminders.</li>
-        {% endfor %}
-    </ul>
-</div>
+<a href="{% url 'add_expense' %}" class="fab" title="Add Expense">
+    <i class="fa-solid fa-plus"></i>
+</a>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
+
+    const chartLabels = {{ chart_dates| safe }};
+    const chartValues = {{ chart_data| safe }};
+
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Expenses (Rs.)',
+                data: chartValues,
+                backgroundColor: gradient,
+                borderColor: '#3b82f6',
+                borderWidth: 2,
+                borderRadius: 10,
+                borderSkipped: false,
+                barThickness: 'flex',
+                maxBarThickness: 50
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function (context) {
+                            return ' Rs. ' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f3f4f6',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: { size: 12 },
+                        color: '#6b7280',
+                        callback: function (value) { return 'Rs. ' + value.toLocaleString(); }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 12 },
+                        color: '#6b7280'
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

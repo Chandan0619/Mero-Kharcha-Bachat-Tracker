@@ -1,30 +1,64 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from django.utils import timezone
 from .models import Income, Expense, SavingsGoal, Budget, Reminder
 from .forms import IncomeForm, ExpenseForm, SavingsGoalForm, BudgetForm, ReminderForm
 
 @login_required
 def dashboard(request):
-    income_total = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
-    expense_total = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
-    savings = income_total - expense_total
+    # Overall statistics
+    total_income = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_expense = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_savings = total_income - total_expense
 
-    recent_income = Income.objects.filter(user=request.user).order_by('-date')[:5]
-    recent_expenses = Expense.objects.filter(user=request.user).order_by('-date')[:5]
-    savings_goals = SavingsGoal.objects.filter(user=request.user)
-    budgets = Budget.objects.filter(user=request.user)
-    reminders = Reminder.objects.filter(user=request.user, is_completed=False)
+    today = timezone.now().date()
+    yesterday = today - timezone.timedelta(days=1)
+    last_30_days = today - timezone.timedelta(days=30)
+
+    # Specific time period expenses
+    today_expense = Expense.objects.filter(user=request.user, date=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    yesterday_expense = Expense.objects.filter(user=request.user, date=yesterday).aggregate(Sum('amount'))['amount__sum'] or 0
+    last_30_days_expense = Expense.objects.filter(user=request.user, date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # Chart data: daily expenses for the last 7 days (including today)
+    chart_dates = []
+    chart_data = []
+    
+    # We can optimize this by fetching all expenses in the last 7 days and then processing in Python
+    seven_days_ago = today - timezone.timedelta(days=6)
+    daily_expenses = Expense.objects.filter(
+        user=request.user, 
+        date__gte=seven_days_ago, 
+        date__lte=today
+    ).values('date').annotate(total=Sum('amount')).order_by('date')
+    
+    # Create a mapping for quick lookup
+    expense_map = {item['date']: float(item['total']) for item in daily_expenses}
+    
+    for i in range(6, -1, -1):
+        day = today - timezone.timedelta(days=i)
+        chart_dates.append(day.strftime('%b %d')) # Better date format
+        chart_data.append(expense_map.get(day, 0.0))
+
+    # Category summary
+    categories = Expense.objects.filter(user=request.user).values('category').annotate(total=Sum('amount')).order_by('-total')
 
     context = {
-        'income_total': income_total,
-        'expense_total': expense_total,
-        'savings': savings,
-        'recent_income': recent_income,
-        'recent_expenses': recent_expenses,
-        'savings_goals': savings_goals,
-        'budgets': budgets,
-        'reminders': reminders,
+        'income_total': total_income,
+        'expense_total': total_expense,
+        'savings': total_savings,
+        'today_expense': today_expense,
+        'yesterday_expense': yesterday_expense,
+        'last_30_days_expense': last_30_days_expense,
+        'chart_dates': chart_dates,
+        'chart_data': chart_data,
+        'categories': categories,
+        'recent_income': Income.objects.filter(user=request.user).order_by('-date')[:5],
+        'recent_expenses': Expense.objects.filter(user=request.user).order_by('-date')[:5],
+        'savings_goals': SavingsGoal.objects.filter(user=request.user),
+        'budgets': Budget.objects.filter(user=request.user),
+        'reminders': Reminder.objects.filter(user=request.user, is_completed=False),
     }
     return render(request, 'finance/dashboard.html', context)
 
