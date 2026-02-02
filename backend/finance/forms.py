@@ -37,11 +37,12 @@ class SavingsGoalForm(forms.ModelForm):
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
-        fields = ['category', 'limit_amount', 'period']
+        fields = ['category', 'limit_amount', 'period', 'start_date']
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select'}),
             'limit_amount': forms.NumberInput(attrs={'class': 'form-control'}),
-            'period': forms.TextInput(attrs={'class': 'form-control'}),
+            'period': forms.Select(choices=[('Weekly', 'Weekly'), ('Monthly', 'Monthly')], attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
 
 class ReminderForm(forms.ModelForm):
