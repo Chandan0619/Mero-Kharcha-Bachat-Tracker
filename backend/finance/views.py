@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.utils import timezone
-from .models import Income, Expense, SavingsGoal, Budget, Reminder
+from .models import Income, Expense, SavingsGoal, Budget, Reminder, Savings
 from .forms import IncomeForm, ExpenseForm, SavingsGoalForm, BudgetForm, ReminderForm
 
 @login_required
@@ -11,6 +11,8 @@ def dashboard(request):
     total_income = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     total_expense = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     total_savings = total_income - total_expense
+    total_automated_savings = Savings.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    unallocated_savings = total_savings - total_automated_savings
 
     today = timezone.now().date()
     yesterday = today - timezone.timedelta(days=1)
@@ -72,10 +74,48 @@ def dashboard(request):
     # Sort merged list by date descending and take top 5
     recent_transactions = sorted(recent_transactions, key=lambda x: x.date, reverse=True)[:5]
 
+    # Active Pockets (Budgets)
+    active_budgets = Budget.objects.filter(user=request.user).order_by('end_date')
+    
+    pockets = []
+    for budget in active_budgets:
+        # Check if active
+        is_active = True
+        if budget.start_date and budget.end_date:
+            if not (budget.start_date <= today <= budget.end_date):
+                is_active = False # Skip inactive for "Active Pockets" list
+
+        if is_active:
+            # Calculate spent in this pocket's period and category
+            expenses_query = Expense.objects.filter(
+                user=request.user, 
+                category=budget.category
+            )
+            
+            if budget.start_date:
+                expenses_query = expenses_query.filter(date__gte=budget.start_date)
+            if budget.end_date:
+                expenses_query = expenses_query.filter(date__lte=budget.end_date)
+                
+            spent = expenses_query.aggregate(Sum('amount'))['amount__sum'] or 0
+            remaining = (budget.limit_amount or 0) - spent
+            
+            pockets.append({
+                'category': budget.category,
+                'limit': budget.limit_amount,
+                'spent': spent,
+                'remaining': remaining,
+                'period': budget.period,
+                'end_date': budget.end_date,
+                'start_date': budget.start_date
+            })
+
     context = {
         'income_total': total_income,
         'expense_total': total_expense,
         'savings': total_savings,
+        'automated_savings': total_automated_savings,
+        'unallocated_savings': unallocated_savings,
         'today_expense': today_expense,
         'yesterday_expense': yesterday_expense,
         'last_30_days_expense': last_30_days_expense,
@@ -85,7 +125,7 @@ def dashboard(request):
         'categories': categories,
         'recent_transactions': recent_transactions,
         'savings_goals': SavingsGoal.objects.filter(user=request.user),
-        'budgets': Budget.objects.filter(user=request.user),
+        'budgets': pockets,
         'reminders': Reminder.objects.filter(user=request.user, is_completed=False).order_by('reminder_date'),
     }
     return render(request, 'finance/dashboard.html', context)
@@ -146,6 +186,15 @@ def add_income(request):
                     income.date = timezone.make_aware(income.date)
                 
             income.save()
+            
+            # Create automatic savings (20%)
+            savings_amount = income.amount * 20 / 100
+            Savings.objects.create(
+                user=request.user,
+                amount=savings_amount,
+                date=income.date,
+                description=f"20% savings from {income.source}"
+            )
             return redirect('dashboard')
     else:
         form = IncomeForm(user=request.user)
@@ -225,6 +274,14 @@ def add_budget(request):
         if form.is_valid():
             budget = form.save(commit=False)
             budget.user = request.user
+            
+            # Calculate end_date based on period
+            if budget.period == 'Weekly':
+                budget.end_date = budget.start_date + timezone.timedelta(days=6)
+            elif budget.period == 'Monthly':
+                # Simple approximation: +30 days. Better would be relativedelta but let's stick to standard lib for now
+                budget.end_date = budget.start_date + timezone.timedelta(days=30)
+                
             budget.save()
             return redirect('dashboard')
     else:

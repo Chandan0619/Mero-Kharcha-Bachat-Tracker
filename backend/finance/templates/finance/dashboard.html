@@ -1,9 +1,15 @@
 {% extends 'finance/base.html' %}
-
-{% block page_title %}Dashboard{% endblock %}
+{% load humanize %}
 
 {% block content %}
 <style>
+    .stat-subtext {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -42,13 +48,13 @@
     .stat-value-e {
         font-size: 1.8rem;
         font-weight: 700;
-        color: red;
+        color: var(--danger);
     }
 
     .stat-value-i {
         font-size: 1.8rem;
         font-weight: 700;
-        color: green;
+        color: var(--success);
     }
 
     .stat-trend {
@@ -79,26 +85,14 @@
         color: #22c55e;
     }
 
-    .icon-yellow {
-        background-color: #fef9c3;
-        color: #eab308;
-    }
-
-    .icon-pink {
-        background-color: #fce7f3;
-        color: #ec4899;
-    }
-
     .icon-red {
         background-color: #fee2e2;
         color: #ef4444;
     }
 
-    .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-        margin-bottom: 32px;
+    .icon-purple {
+        background-color: #f3e8ff;
+        color: #8b5cf6;
     }
 
     .chart-container {
@@ -106,8 +100,7 @@
         background: white;
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        height: 400px;
-        position: relative;
+        margin-bottom: 32px;
     }
 
     .chart-header {
@@ -117,49 +110,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-    }
-
-    @media (max-width: 992px) {
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .category-container {
-        padding: 24px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        position: relative;
-    }
-
-    .fab {
-        position: fixed;
-        bottom: 32px;
-        right: 32px;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background-color: var(--accent-blue);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        text-decoration: none;
-        transition: transform 0.2s;
-        z-index: 1000;
-    }
-
-    .fab:hover {
-        transform: scale(1.1);
-    }
-
-    @media (max-width: 1200px) {
-        .dashboard-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
     }
 
     .transaction-container {
@@ -273,54 +223,81 @@
     .reminder-btn-done:hover {
         background-color: #bbf7d0;
     }
+
+    .secondary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-top: 32px;
+    }
+
+    @media (max-width: 992px) {
+
+        .secondary-grid,
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pocket-badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #f3f4f6;
+        color: #4b5563;
+        margin-top: 4px;
+        display: inline-block;
+    }
 </style>
 
 <div class="dashboard-grid">
-    <!-- Today's Expense -->
+    <!-- Total Income -->
     <div class="stat-card">
         <div class="stat-info">
-            <span class="stat-label">Today's Expense</span>
-            <span class="stat-value-e">Rs. {{ today_expense|floatformat:0 }}</span>
-            <span class="stat-trend"><i class="fa-solid fa-calendar-day"></i> Today</span>
+            <span class="stat-label">Total Income</span>
+            <span class="stat-value-i">Rs. {{ income_total|floatformat:0|intcomma }}</span>
         </div>
-        <div class="stat-icon icon-red">
-            <i class="fa-solid fa-receipt"></i>
+        <div class="stat-icon icon-green">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
         </div>
     </div>
     <!-- Total Expense -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Total Expense</span>
-            <span class="stat-value-e">Rs. {{ expense_total|floatformat:0 }}</span>
+            <span class="stat-value-e">Rs. {{ expense_total|floatformat:0|intcomma }}</span>
         </div>
         <div class="stat-icon icon-red">
             <i class="fa-solid fa-money-bill-trend-up"></i>
         </div>
     </div>
-    <!-- Total Income -->
+    <!-- Net Savings (Total Surplus) -->
     <div class="stat-card">
         <div class="stat-info">
-            <span class="stat-label">Total Income</span>
-            <span class="stat-value-i">Rs. {{ income_total|floatformat:0 }}</span>
-        </div>
-        <div class="stat-icon icon-green">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
-        </div>
-    </div>
-
-    <!-- Total Savings -->
-    <div class="stat-card">
-        <div class="stat-info">
-            <span class="stat-label">Total Savings</span>
-            <span class="stat-value">Rs. {{ savings|floatformat:0 }}</span>
+            <span class="stat-label">Total Surplus</span>
+            <span class="stat-value {% if savings >= 0 %}text-success{% else %}text-danger{% endif %}">
+                Rs. {{ savings|floatformat:0|intcomma }}
+            </span>
+            <div class="stat-subtext">Cash: Rs. {{ unallocated_savings|floatformat:0|intcomma }}</div>
         </div>
         <div class="stat-icon icon-blue">
             <i class="fa-solid fa-wallet"></i>
         </div>
     </div>
+    <!-- Accumulated Savings (Automated) -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Auto Savings</span>
+            <span class="stat-value" style="color: #8b5cf6;">Rs. {{ automated_savings|floatformat:0|intcomma }}</span>
+            <div class="stat-subtext">20% rule active</div>
+        </div>
+        <div class="stat-icon icon-purple">
+            <i class="fa-solid fa-vault"></i>
+        </div>
+    </div>
 </div>
 
-<div class="chart-container" style="margin-bottom: 32px;">
+<div class="chart-container">
     <div class="chart-header">
         <i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Daily Comparison (Income vs Expense)
     </div>
@@ -329,25 +306,87 @@
     </div>
 </div>
 
+<div class="secondary-grid">
+    <!-- Active Pockets / Budgets -->
+    <div class="transaction-container" style="margin-top: 0;">
+        <div class="chart-header"><i class="fa-solid fa-piggy-bank" style="color: #eab308;"></i> Active Pockets</div>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th style="text-align: right;">Spent</th>
+                    <th style="text-align: right;">Left</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in budgets %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ b.category }}</div>
+                        <span class="pocket-badge">{{ b.period }}</span>
+                    </td>
+                    <td style="text-align: right; color: #ef4444;">Rs. {{ b.spent|floatformat:0|intcomma }}</td>
+                    <td
+                        style="text-align: right; font-weight: 700; color: {% if b.remaining < 0 %}#ef4444{% else %}#10b981{% endif %};">
+                        Rs. {{ b.remaining|floatformat:0|intcomma }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No active
+                        pockets set.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Savings Goals -->
+    <div class="transaction-container" style="margin-top: 0;">
+        <div class="chart-header"><i class="fa-solid fa-bullseye" style="color: #ec4899;"></i> Savings Goals</div>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Goal</th>
+                    <th style="text-align: right;">Target</th>
+                    <th style="text-align: right;">Current</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for goal in savings_goals %}
+                <tr>
+                    <td style="font-weight: 600;">{{ goal.name }}</td>
+                    <td style="text-align: right;">Rs. {{ goal.target_amount|floatformat:0|intcomma }}</td>
+                    <td style="text-align: right; color: #10b981; font-weight: 700;">Rs. {{
+                        goal.current_amount|floatformat:0|intcomma }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No savings
+                        goals set.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <div class="transaction-container">
-    <div class="chart-header">Recent Transactions</div>
+    <div class="chart-header"><i class="fa-solid fa-list-ul" style="color: #6366f1;"></i> Recent Transactions</div>
     <table>
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Time</th>
                 <th>Details</th>
                 <th>Type</th>
-                <th>Amount</th>
+                <th style="text-align: right;">Amount</th>
             </tr>
         </thead>
         <tbody>
             {% for tx in recent_transactions %}
             <tr>
-                <td>{{ tx.date|date:"M d, Y" }}</td>
-                <td>{{ tx.date|date:"h:i A" }}</td>
-                <td>
+                <td>{{ tx.date|date:"M d" }}</td>
+                <td style="font-weight: 500;">
                     {% if tx.transaction_type == 'Income' %}
                     {{ tx.source }}
                     {% else %}
@@ -359,22 +398,22 @@
                         {{ tx.transaction_type }}
                     </span>
                 </td>
-                <td
+                <td style="text-align: right;"
                     class="amount-cell {% if tx.transaction_type == 'Income' %}text-success{% else %}text-danger{% endif %}">
-                    {% if tx.transaction_type == 'Expense' %}{% endif %}
-                    Rs. {{ tx.amount|floatformat:0 }}
+                    Rs. {{ tx.amount|floatformat:0|intcomma }}
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-muted);">No recent transactions</td>
+                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">No recent
+                    transactions</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     <div class="more-link-container">
         <a href="{% url 'all_transactions' %}" class="more-link">
-            More <i class="fa-solid fa-arrow-right"></i>
+            View All History <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
 </div>
@@ -382,7 +421,8 @@
 <!-- Reminders Section -->
 <div class="reminders-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 class="chart-header" style="margin-bottom: 0;">Planned Reminders</h3>
+        <h3 class="chart-header" style="margin-bottom: 0;"><i class="fa-solid fa-bell" style="color: #6366f1;"></i>
+            Planned Reminders</h3>
         <a href="{% url 'add_reminder' %}" class="more-link">View All <i class="fa-solid fa-chevron-right"></i></a>
     </div>
 
@@ -408,7 +448,6 @@
         {% endfor %}
     </div>
 </div>
-
 
 <!-- Data for Chart.js -->
 {{ chart_dates|json_script:"chart-dates-data" }}
