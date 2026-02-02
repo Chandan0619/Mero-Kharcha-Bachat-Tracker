@@ -20,6 +20,7 @@ class FinanceTests(TestCase):
             'source': 'Salary',
             'amount': 5000,
             'date': date.today(),
+            'time': '10:00',
             'description': 'Monthly salary'
         })
         self.assertEqual(response.status_code, 302) # Redirects to dashboard
@@ -29,8 +30,10 @@ class FinanceTests(TestCase):
     def test_add_expense(self):
         response = self.client.post(reverse('add_expense'), {
             'category': 'Food',
+            'payment_method': 'Cash',
             'amount': 100,
             'date': date.today(),
+            'time': '12:00',
             'description': 'Groceries'
         })
         self.assertEqual(response.status_code, 302)

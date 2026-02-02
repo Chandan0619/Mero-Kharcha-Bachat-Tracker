@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mero Kharcha & Bachat Tracker - Register</title>
+    <title>Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Body & Background */
         body {
@@ -73,7 +74,7 @@
 
         .input-group input {
             width: 100%;
-            padding: 15px 15px 15px 45px;
+            padding: 15px 45px 15px 45px;
             border: 2px solid #eee;
             border-radius: 50px;
             font-size: 1rem;
@@ -89,11 +90,29 @@
 
         .icon {
             position: absolute;
-            left: 15px;
+            left: 20px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: #aaa;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s;
+            z-index: 10;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: #764ba2;
         }
 
         .btn-login,
@@ -115,6 +134,23 @@
         .btn-register:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        /* Message Styling */
+        .message-container {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fef2f2;
+            border-radius: 50px;
+            border: 1px solid #fecaca;
+        }
+
+        .error-msg {
+            color: #991b1b;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0;
         }
 
         /* Divider */
@@ -211,26 +247,29 @@
                 <p class="subtitle">Create a new account</p>
 
                 {% if messages %}
-                {% for message in messages %}
-                <p style="color: red; font-size: 0.8rem;">{{ message }}</p>
-                {% endfor %}
+                <div class="message-container">
+                    {% for message in messages %}
+                    <p class="error-msg">{{ message }}</p>
+                    {% endfor %}
+                </div>
                 {% endif %}
 
                 <form class="form" method="POST" action="{% url 'register' %}">
                     {% csrf_token %}
                     <div class="input-group">
-                        <span class="icon">👤</span>
+                        <span class="icon"><i class="fa-solid fa-user"></i></span>
                         <input type="text" name="username" placeholder="Username" required>
                     </div>
 
                     <div class="input-group">
-                        <span class="icon">📧</span>
+                        <span class="icon"><i class="fa-solid fa-envelope"></i></span>
                         <input type="email" name="email" placeholder="Email" required>
                     </div>
 
                     <div class="input-group">
-                        <span class="icon">🔒</span>
-                        <input type="password" name="password" placeholder="Password" required>
+                        <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" name="password" id="password" placeholder="Password" required>
+                        <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
                     </div>
 
                     <button type="submit" class="btn-register">Register</button>
@@ -248,6 +287,20 @@
             </div>
         </div>
     </div>
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            // toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // toggle the icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 
 </html>

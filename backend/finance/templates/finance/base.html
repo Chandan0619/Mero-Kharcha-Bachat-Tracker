@@ -158,28 +158,6 @@
             font-weight: 600;
         }
 
-        .search-container {
-            background-color: #f3f4f6;
-            padding: 8px 16px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 400px;
-            /* Use max-width instead of width */
-            flex: 1;
-            /* Allow it to grow/shrink */
-            margin: 0 20px;
-        }
-
-        .search-btn {
-            background-color: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
 
         .topbar-right {
             display: flex;
@@ -293,10 +271,6 @@
                 width: calc(100% - 80px);
             }
 
-            .search-container {
-                max-width: 200px;
-                margin: 0 10px;
-            }
         }
     </style>
 </head>
@@ -322,10 +296,10 @@
                 <i class="fa-solid fa-wallet"></i>
                 <span>Expense</span>
             </a>
-            <a href="{% url 'finance_report' %}"
-                class="nav-item {% if request.resolver_match.url_name == 'finance_report' %}active{% endif %}">
-                <i class="fa-solid fa-list-ul"></i>
-                <span>Recent Transaction</span>
+            <a href="{% url 'all_transactions' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}">
+                <i class="fa-solid fa-receipt"></i>
+                <span>All Transactions</span>
             </a>
             <a href="{% url 'add_budget' %}"
                 class="nav-item {% if request.resolver_match.url_name == 'add_budget' %}active{% endif %}">
@@ -364,10 +338,6 @@
                 <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
             </div>
 
-            <div class="search-container">
-                <input type="text" placeholder="Search...">
-                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
 
             <div class="topbar-right">
                 <div class="user-profile">

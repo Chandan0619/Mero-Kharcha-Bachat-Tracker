@@ -36,7 +36,19 @@
     .stat-value {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #111827;
+        color: black;
+    }
+
+    .stat-value-e {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: red;
+    }
+
+    .stat-value-i {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: green;
     }
 
     .stat-trend {
@@ -77,20 +89,40 @@
         color: #ec4899;
     }
 
+    .icon-red {
+        background-color: #fee2e2;
+        color: #ef4444;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
     .chart-container {
         padding: 24px;
         background: white;
         border-radius: 12px;
-        margin-bottom: 32px;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         height: 400px;
-        /* Added fixed height for Chart.js */
+        position: relative;
     }
 
     .chart-header {
         margin-bottom: 24px;
         font-size: 1.25rem;
         font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    @media (max-width: 992px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     .category-container {
@@ -130,34 +162,146 @@
         }
     }
 
-    @media (max-width: 640px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
+    .transaction-container {
+        padding: 24px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin-top: 32px;
+    }
+
+    .text-success {
+        color: #10b981;
+    }
+
+    .text-danger {
+        color: #ef4444;
+    }
+
+    .amount-cell {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .type-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-income {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-expense {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .more-link-container {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 16px;
+        border-top: 1px solid #f3f4f6;
+        margin-top: 16px;
+    }
+
+    .more-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+        transition: transform 0.2s;
+    }
+
+    .more-link:hover {
+        transform: translateX(4px);
+    }
+
+    /* Reminders Section Style */
+    .reminders-section {
+        margin-top: 32px;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .reminder-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .reminder-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 10px;
+        border-left: 4px solid #6366f1;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .reminder-card:hover {
+        transform: translateY(-2px);
+        background-color: #f3f4f6;
+    }
+
+    .reminder-btn-done {
+        background-color: #dcfce7;
+        color: #166534;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.2s;
+    }
+
+    .reminder-btn-done:hover {
+        background-color: #bbf7d0;
     }
 </style>
 
 <div class="dashboard-grid">
-     <!-- Today's Expense -->
+    <!-- Today's Expense -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Today's Expense</span>
-            <span class="stat-value">Rs. {{ today_expense|floatformat:0 }}</span>
+            <span class="stat-value-e">Rs. {{ today_expense|floatformat:0 }}</span>
             <span class="stat-trend"><i class="fa-solid fa-calendar-day"></i> Today</span>
         </div>
+        <div class="stat-icon icon-red">
+            <i class="fa-solid fa-receipt"></i>
+        </div>
     </div>
-      <!-- Total Expense -->
+    <!-- Total Expense -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Total Expense</span>
-            <span class="stat-value">Rs. {{ expense_total|floatformat:0 }}</span>
+            <span class="stat-value-e">Rs. {{ expense_total|floatformat:0 }}</span>
+        </div>
+        <div class="stat-icon icon-red">
+            <i class="fa-solid fa-money-bill-trend-up"></i>
         </div>
     </div>
     <!-- Total Income -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Total Income</span>
-            <span class="stat-value">Rs. {{ income_total|floatformat:0 }}</span>
+            <span class="stat-value-i">Rs. {{ income_total|floatformat:0 }}</span>
         </div>
         <div class="stat-icon icon-green">
             <i class="fa-solid fa-hand-holding-dollar"></i>
@@ -176,109 +320,191 @@
     </div>
 </div>
 
-<div class="chart-container">
-    <div class="chart-header">Expense Chart</div>
-    <canvas id="expenseChart" height="100"></canvas>
+<div class="chart-container" style="margin-bottom: 32px;">
+    <div class="chart-header">
+        <i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Daily Comparison (Income vs Expense)
+    </div>
+    <div style="height: 300px; position: relative;">
+        <canvas id="financeChart"></canvas>
+    </div>
 </div>
 
-<div class="category-container">
-    <div class="chart-header">Category Table</div>
+
+<div class="transaction-container">
+    <div class="chart-header">Recent Transactions</div>
     <table>
         <thead>
             <tr>
-                <th>Category</th>
-                <th>Total Spent</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Details</th>
+                <th>Type</th>
+                <th>Amount</th>
             </tr>
         </thead>
         <tbody>
-            {% for cat in categories %}
+            {% for tx in recent_transactions %}
             <tr>
-                <td>{{ cat.category }}</td>
-                <td style="font-weight: 600;">Rs. {{ cat.total|floatformat:2 }}</td>
+                <td>{{ tx.date|date:"M d, Y" }}</td>
+                <td>{{ tx.date|date:"h:i A" }}</td>
+                <td>
+                    {% if tx.transaction_type == 'Income' %}
+                    {{ tx.source }}
+                    {% else %}
+                    {{ tx.category }}
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="type-badge badge-{{ tx.transaction_type|lower }}">
+                        {{ tx.transaction_type }}
+                    </span>
+                </td>
+                <td
+                    class="amount-cell {% if tx.transaction_type == 'Income' %}text-success{% else %}text-danger{% endif %}">
+                    {% if tx.transaction_type == 'Expense' %}{% endif %}
+                    Rs. {{ tx.amount|floatformat:0 }}
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="2" style="text-align: center; color: var(--text-muted);">No data available</td>
+                <td colspan="5" style="text-align: center; color: var(--text-muted);">No recent transactions</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    <div class="more-link-container">
+        <a href="{% url 'all_transactions' %}" class="more-link">
+            More <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
 </div>
 
-<a href="{% url 'add_expense' %}" class="fab" title="Add Expense">
-    <i class="fa-solid fa-plus"></i>
-</a>
+<!-- Reminders Section -->
+<div class="reminders-section">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="chart-header" style="margin-bottom: 0;">Planned Reminders</h3>
+        <a href="{% url 'add_reminder' %}" class="more-link">View All <i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+
+    <div class="reminder-list">
+        {% for reminder in reminders %}
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="{% url 'add_reminder' %}" class="reminder-card" style="flex: 1;">
+                <div>
+                    <div style="font-weight: 600;">{{ reminder.title }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-calendar-day"></i> {{ reminder.reminder_date|date:"M d, Y" }}
+                        <span style="margin: 0 8px;">|</span>
+                        <i class="fa-solid fa-clock"></i> {{ reminder.reminder_date|date:"h:i A" }}
+                    </div>
+                </div>
+            </a>
+            <a href="{% url 'complete_reminder' reminder.pk %}" class="reminder-btn-done">
+                <i class="fa-solid fa-check"></i>
+            </a>
+        </div>
+        {% empty %}
+        <p style="text-align: center; color: var(--text-muted); padding: 20px;">No pending reminders.</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- Data for Chart.js -->
+{{ chart_dates|json_script:"chart-dates-data" }}
+{{ expense_chart_data|json_script:"chart-expense-data" }}
+{{ income_chart_data|json_script:"chart-income-data" }}
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('expenseChart').getContext('2d');
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('financeChart');
+        if (!canvas) return;
 
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
-    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
+        const ctx = canvas.getContext('2d');
 
-    const chartLabels = {{ chart_dates| safe }};
-    const chartValues = {{ chart_data| safe }};
+        // Safely parse JSON data from script tags
+        let chartLabels = [];
+        let expenseValues = [];
+        let incomeValues = [];
+        try {
+            chartLabels = JSON.parse(document.getElementById('chart-dates-data').textContent);
+            expenseValues = JSON.parse(document.getElementById('chart-expense-data').textContent);
+            incomeValues = JSON.parse(document.getElementById('chart-income-data').textContent);
+        } catch (e) {
+            console.error("Error parsing chart data:", e);
+        }
 
-    const myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Expenses (Rs.)',
-                data: chartValues,
-                backgroundColor: gradient,
-                borderColor: '#3b82f6',
-                borderWidth: 2,
-                borderRadius: 10,
-                borderSkipped: false,
-                barThickness: 'flex',
-                maxBarThickness: 50
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    titleFont: { size: 14, weight: 'bold' },
-                    bodyFont: { size: 13 },
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
-                    callbacks: {
-                        label: function (context) {
-                            return ' Rs. ' + context.raw.toLocaleString();
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: incomeValues,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.6
+                    },
+                    {
+                        label: 'Expenses',
+                        data: expenseValues,
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 12, weight: '500' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        intersect: false,
+                        mode: 'index',
+                        callbacks: {
+                            label: function (context) {
+                                return ' ' + context.dataset.label + ': Rs. ' + (context.raw || 0).toLocaleString();
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: '#f3f4f6',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        font: { size: 12 },
-                        color: '#6b7280',
-                        callback: function (value) { return 'Rs. ' + value.toLocaleString(); }
-                    }
                 },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        font: { size: 12 },
-                        color: '#6b7280'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6', drawBorder: false },
+                        ticks: {
+                            color: '#6b7280',
+                            callback: function (value) { return 'Rs. ' + value.toLocaleString(); }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#6b7280' }
                     }
                 }
             }
-        }
+        });
     });
 </script>
 {% endblock %}

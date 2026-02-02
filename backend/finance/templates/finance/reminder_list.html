@@ -1,0 +1,346 @@
+{% extends 'finance/base.html' %}
+{% load static %}
+
+{% block title %}Reminders{% endblock %}
+{% block page_title %}Reminders{% endblock %}
+
+{% block content %}
+<style>
+    .reminders-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .reminders-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 40px 30px;
+        border-radius: 12px 12px 0 0;
+        margin-bottom: -20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .reminders-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .reminders-header p {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .reminders-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .input-wrapper .form-control {
+        padding-left: 45px;
+        height: 50px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    .input-wrapper .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    #id_message {
+        height: 80px;
+        padding: 14px 16px;
+        line-height: 1.4;
+        resize: none;
+        padding-left: 45px;
+    }
+
+    .datetime-row {
+        display: flex;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    .date-input-container,
+    .time-input-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0 16px;
+        height: 50px;
+        gap: 10px;
+    }
+
+    .date-input-container i,
+    .time-input-container i {
+        color: #6366f1;
+    }
+
+    .date-input-container input,
+    .time-input-container input {
+        border: none;
+        background: transparent;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 500;
+        width: 100%;
+        outline: none;
+        text-align: center;
+    }
+
+    .btn-submit {
+        width: 100%;
+        height: 50px;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.3s;
+        margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+        opacity: 0.9;
+    }
+
+    /* List Styles */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-main);
+    }
+
+    .reminder-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid #f3f4f6;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        transition: background-color 0.2s;
+    }
+
+    .reminder-item:hover {
+        background-color: #f9fafb;
+    }
+
+    .reminder-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .reminder-title {
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .reminder-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-complete {
+        background-color: #dcfce7;
+        color: #166534;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-complete:hover {
+        background-color: #bbf7d0;
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .history-content {
+        display: none;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px dashed #e5e7eb;
+    }
+
+    .completed-item {
+        opacity: 0.7;
+        background-color: #f3f4f6;
+    }
+
+    .completed-item .reminder-title {
+        text-decoration: line-through;
+    }
+</style>
+
+<div class="reminders-container">
+    <div class="reminders-header">
+        <h2>Reminders</h2>
+        <p>Stay on top of your tasks and never miss a payment.</p>
+    </div>
+
+    <!-- Add Reminder Form -->
+    <div class="reminders-card">
+        <h3 class="section-title"><i class="fa-solid fa-plus-circle"></i> Add New Reminder</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">Reminder Title</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-bell"></i>
+                    {{ form.title }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.message.id_for_label }}">Details (Optional)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-comment-dots" style="top: 20px;"></i>
+                    {{ form.message }}
+                </div>
+            </div>
+
+            <div class="datetime-row">
+                <div class="date-input-container">
+                    <i class="fa-solid fa-calendar"></i>
+                    {{ form.date }}
+                </div>
+                <div class="time-input-container">
+                    <i class="fa-solid fa-clock"></i>
+                    {{ form.time }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Add Reminder</button>
+        </form>
+    </div>
+
+    <!-- Active Reminders List -->
+    <div class="reminders-card">
+        <h3 class="section-title"><i class="fa-solid fa-clock"></i> Active Reminders</h3>
+        {% for reminder in active_reminders %}
+        <div class="reminder-item">
+            <div class="reminder-info">
+                <span class="reminder-title">{{ reminder.title }}</span>
+                <div class="reminder-meta">
+                    <span><i class="fa-solid fa-calendar-day"></i> {{ reminder.reminder_date|date:"M d, Y" }}</span>
+                    <span><i class="fa-solid fa-clock"></i> {{ reminder.reminder_date|date:"h:i A" }}</span>
+                </div>
+                {% if reminder.message %}
+                <span style="font-size: 0.85rem; color: var(--text-muted);">{{ reminder.message }}</span>
+                {% endif %}
+            </div>
+            <a href="{% url 'complete_reminder' reminder.pk %}" class="btn-complete">
+                <i class="fa-solid fa-check"></i> Done
+            </a>
+        </div>
+        {% empty %}
+        <p style="text-align: center; color: var(--text-muted); padding: 20px;">No active reminders.</p>
+        {% endfor %}
+    </div>
+
+    <!-- History Toggle -->
+    <div class="reminders-card">
+        <div class="history-header" id="history-toggle">
+            <h3 class="section-title" style="margin-bottom: 0;">
+                <i class="fa-solid fa-history"></i> History
+            </h3>
+            <i class="fa-solid fa-chevron-down" id="history-icon" style="color: var(--text-muted);"></i>
+        </div>
+
+        <div class="history-content" id="history-content">
+            {% for reminder in completed_reminders %}
+            <div class="reminder-item completed-item">
+                <div class="reminder-info">
+                    <span class="reminder-title">{{ reminder.title }}</span>
+                    <div class="reminder-meta">
+                        <span>Completed on {{ reminder.reminder_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                <span style="color: #166534; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Finished</span>
+            </div>
+            {% empty %}
+            <p style="text-align: center; color: var(--text-muted); padding: 10px;">No history yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.getElementById('history-toggle');
+        const content = document.getElementById('history-content');
+        const icon = document.getElementById('history-icon');
+
+        toggle.addEventListener('click', function () {
+            const isVisible = content.style.display === 'block';
+            content.style.display = isVisible ? 'none' : 'block';
+            icon.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+            icon.style.transition = 'transform 0.3s';
+        });
+
+        // Set default dates if empty
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+    });
+</script>
+{% endblock %}
