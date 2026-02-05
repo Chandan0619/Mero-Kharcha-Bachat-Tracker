@@ -306,11 +306,6 @@
                 <i class="fa-solid fa-users-gear"></i>
                 <span>Set Budget</span>
             </a>
-            <a href="{% url 'add_savings' %}"
-                class="nav-item {% if request.resolver_match.url_name == 'add_savings' %}active{% endif %}">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>Savings Goal</span>
-            </a>
             <a href="{% url 'finance_report' %}" class="nav-item">
                 <i class="fa-solid fa-file-lines"></i>
                 <span>Report</span>

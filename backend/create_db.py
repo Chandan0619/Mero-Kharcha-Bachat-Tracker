@@ -23,9 +23,11 @@ try:
     )
     
     with connection.cursor() as cursor:
+        # Drop database if exists to ensure a clean state (caution: this deletes all data)
+        cursor.execute(f"DROP DATABASE IF EXISTS {db_name}")
         # Create database
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
-        print(f"Database '{db_name}' created successfully (or already exists).")
+        cursor.execute(f"CREATE DATABASE {db_name}")
+        print(f"Database '{db_name}' recreated successfully.")
 
     connection.close()
 

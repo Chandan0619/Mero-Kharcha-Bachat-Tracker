@@ -80,9 +80,11 @@ class Reminder(models.Model):
 
 class Savings(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    income = models.ForeignKey(Income, on_delete=models.CASCADE, null=True, blank=True, related_name='autosavings')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
     description = models.TextField(blank=True, null=True)
+    is_automatic = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Savings - {self.amount}"
+        return f"Savings - {self.amount} ({'Auto' if self.is_automatic else 'Manual'})"

@@ -49,4 +49,23 @@ class FinanceTests(TestCase):
         self.assertEqual(response.context['income_total'], 1000)
         self.assertEqual(response.context['expense_total'], 500)
         self.assertEqual(response.context['savings'], 500)
+        self.assertEqual(response.context['automated_savings'], 200) # 20% of 1000
+        self.assertEqual(response.context['unallocated_savings'], 300) # 500 - 200
         print("Dashboard Calcs: OK")
+
+    def test_auto_savings_sync(self):
+        from finance.models import Savings
+        # Create income
+        income = Income.objects.create(user=self.user, source='Salary', amount=1000, date=date.today())
+        self.assertTrue(Savings.objects.filter(income=income, amount=200, is_automatic=True).exists())
+        
+        # Update income
+        income.amount = 2000
+        income.save()
+        self.assertTrue(Savings.objects.filter(income=income, amount=400, is_automatic=True).exists())
+        self.assertEqual(Savings.objects.filter(income=income).count(), 1)
+        
+        # Delete income
+        income.delete()
+        self.assertFalse(Savings.objects.filter(income=income).exists())
+        print("Auto Savings Sync: OK")

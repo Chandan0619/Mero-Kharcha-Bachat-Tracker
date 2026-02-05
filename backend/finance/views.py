@@ -11,7 +11,7 @@ def dashboard(request):
     total_income = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     total_expense = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
     total_savings = total_income - total_expense
-    total_automated_savings = Savings.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_automated_savings = Savings.objects.filter(user=request.user, is_automatic=True).aggregate(Sum('amount'))['amount__sum'] or 0
     unallocated_savings = total_savings - total_automated_savings
 
     today = timezone.now().date()
@@ -187,14 +187,6 @@ def add_income(request):
                 
             income.save()
             
-            # Create automatic savings (20%)
-            savings_amount = income.amount * 20 / 100
-            Savings.objects.create(
-                user=request.user,
-                amount=savings_amount,
-                date=income.date,
-                description=f"20% savings from {income.source}"
-            )
             return redirect('dashboard')
     else:
         form = IncomeForm(user=request.user)
