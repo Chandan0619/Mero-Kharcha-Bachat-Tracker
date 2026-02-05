@@ -307,9 +307,9 @@
 </div>
 
 <div class="secondary-grid">
-    <!-- Active Pockets / Budgets -->
+    <!-- Weekly Pockets -->
     <div class="transaction-container" style="margin-top: 0;">
-        <div class="chart-header"><i class="fa-solid fa-piggy-bank" style="color: #eab308;"></i> Active Pockets</div>
+        <div class="chart-header"><i class="fa-solid fa-calendar-week" style="color: #eab308;"></i> Weekly Pockets</div>
         <table style="width: 100%;">
             <thead>
                 <tr>
@@ -319,11 +319,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for b in budgets %}
+                {% for b in weekly_budgets %}
                 <tr>
                     <td>
                         <div style="font-weight: 600;">{{ b.category }}</div>
-                        <span class="pocket-badge">{{ b.period }}</span>
+                        <div style="font-size: 0.75rem; color: #6b7280;">Ends {{ b.end_date|date:"M d" }}</div>
                     </td>
                     <td style="text-align: right; color: #ef4444;">Rs. {{ b.spent|floatformat:0|intcomma }}</td>
                     <td
@@ -333,37 +333,43 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No active
-                        pockets set.</td>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No weekly
+                        pockets active.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Savings Goals -->
+    <!-- Monthly Pockets -->
     <div class="transaction-container" style="margin-top: 0;">
-        <div class="chart-header"><i class="fa-solid fa-bullseye" style="color: #ec4899;"></i> Savings Goals</div>
+        <div class="chart-header"><i class="fa-solid fa-calendar-days" style="color: #ec4899;"></i> Monthly Pockets
+        </div>
         <table style="width: 100%;">
             <thead>
                 <tr>
-                    <th>Goal</th>
-                    <th style="text-align: right;">Target</th>
-                    <th style="text-align: right;">Current</th>
+                    <th>Category</th>
+                    <th style="text-align: right;">Spent</th>
+                    <th style="text-align: right;">Left</th>
                 </tr>
             </thead>
             <tbody>
-                {% for goal in savings_goals %}
+                {% for b in monthly_budgets %}
                 <tr>
-                    <td style="font-weight: 600;">{{ goal.name }}</td>
-                    <td style="text-align: right;">Rs. {{ goal.target_amount|floatformat:0|intcomma }}</td>
-                    <td style="text-align: right; color: #10b981; font-weight: 700;">Rs. {{
-                        goal.current_amount|floatformat:0|intcomma }}</td>
+                    <td>
+                        <div style="font-weight: 600;">{{ b.category }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">Ends {{ b.end_date|date:"M d" }}</div>
+                    </td>
+                    <td style="text-align: right; color: #ef4444;">Rs. {{ b.spent|floatformat:0|intcomma }}</td>
+                    <td
+                        style="text-align: right; font-weight: 700; color: {% if b.remaining < 0 %}#ef4444{% else %}#10b981{% endif %};">
+                        Rs. {{ b.remaining|floatformat:0|intcomma }}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No savings
-                        goals set.</td>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">No monthly
+                        pockets active.</td>
                 </tr>
                 {% endfor %}
             </tbody>

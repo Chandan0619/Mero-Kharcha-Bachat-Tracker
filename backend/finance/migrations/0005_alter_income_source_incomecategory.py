@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('finance', '0002_alter_income_source'),
+        ('finance', '0004_alter_income_source'),
     ]
 
     operations = [
