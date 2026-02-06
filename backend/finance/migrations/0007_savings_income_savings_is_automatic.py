@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finance', '0006_merge_20260203_0141'),
+        ('finance', '0006_alter_income_date'),
     ]
 
     operations = [

@@ -53,13 +53,17 @@ class ExpenseForm(forms.ModelForm):
 
     class Meta:
         model = Expense
-        fields = ['category', 'payment_method', 'amount', 'date', 'description']
+        fields = ['amount', 'category', 'new_category', 'payment_method', 'new_payment_method', 'source_type', 'date', 'time', 'description']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'category': forms.Select(attrs={'class': 'form-select'}),
-            'payment_method': forms.Select(attrs={'class': 'form-select'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter amount'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional description'}),
+            'category': forms.Select(attrs={'class': 'form-control', 'id': 'category-select'}),
+            'new_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter new category', 'id': 'new-category-input', 'style': 'display: none;'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control', 'id': 'payment-method-select'}),
+            'new_payment_method': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter new payment method', 'id': 'new-payment-method-input', 'style': 'display: none;'}),
+            'source_type': forms.Select(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description (optional)'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -92,15 +96,29 @@ class SavingsGoalForm(forms.ModelForm):
         }
 
 class BudgetForm(forms.ModelForm):
+    new_category = forms.CharField(
+        required=False, 
+        label="Or add a new category",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type new category name...'})
+    )
+
     class Meta:
         model = Budget
         fields = ['category', 'limit_amount', 'period', 'start_date']
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select'}),
-            'limit_amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'limit_amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter limit amount'}),
             'period': forms.Select(choices=[('Weekly', 'Weekly'), ('Monthly', 'Monthly')], attrs={'class': 'form-select'}),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            from .models import ExpenseCategory
+            categories = ExpenseCategory.objects.filter(user=user).values_list('name', 'name')
+            self.fields['category'].widget.choices = [('', 'Select Category')] + list(categories) + [('Add New', 'Add New Category')]
 
 class ReminderForm(forms.ModelForm):
     date = forms.DateField(

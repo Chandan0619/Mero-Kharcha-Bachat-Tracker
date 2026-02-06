@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('finance', '0004_alter_income_date'),
+        ('finance', '0007_savings_income_savings_is_automatic'),
     ]
 
     operations = [

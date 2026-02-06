@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.utils import timezone
 from .models import Income, Expense, SavingsGoal, Budget, Reminder, Savings
 from .forms import IncomeForm, ExpenseForm, SavingsGoalForm, BudgetForm, ReminderForm
+from .utils import render_to_pdf
 
 @login_required
 def dashboard(request):
@@ -14,7 +16,7 @@ def dashboard(request):
     total_automated_savings = Savings.objects.filter(user=request.user, is_automatic=True).aggregate(Sum('amount'))['amount__sum'] or 0
     unallocated_savings = total_savings - total_automated_savings
 
-    today = timezone.now().date()
+    today = timezone.localdate()
     yesterday = today - timezone.timedelta(days=1)
     last_30_days = today - timezone.timedelta(days=30)
 
@@ -24,27 +26,34 @@ def dashboard(request):
     last_30_days_expense = Expense.objects.filter(user=request.user, date__date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
 
     # Chart data: daily expenses and income for the last 7 days (including today)
-    from django.db.models.functions import TruncDate
-    
     seven_days_ago = today - timezone.timedelta(days=6)
     
-    # Daily Expenses
-    daily_expenses = Expense.objects.filter(
+    # Construct aware start/end datetimes for the range to avoid SQLite date lookup issues
+    start_dt = timezone.make_aware(timezone.datetime.combine(seven_days_ago, timezone.datetime.min.time()))
+    end_dt = timezone.make_aware(timezone.datetime.combine(today, timezone.datetime.max.time()))
+
+    # Fetch all relevant records using efficient range filter
+    relevant_expenses = Expense.objects.filter(
         user=request.user, 
-        date__date__gte=seven_days_ago, 
-        date__date__lte=today
-    ).annotate(date_only=TruncDate('date')).values('date_only').annotate(total=Sum('amount')).order_by('date_only')
-    
-    # Daily Income
-    daily_income_qs = Income.objects.filter(
+        date__gte=start_dt, 
+        date__lte=end_dt
+    )
+    relevant_income = Income.objects.filter(
         user=request.user, 
-        date__date__gte=seven_days_ago, 
-        date__date__lte=today
-    ).annotate(date_only=TruncDate('date')).values('date_only').annotate(total=Sum('amount')).order_by('date_only')
+        date__gte=start_dt, 
+        date__lte=end_dt
+    )
     
-    # Create mappings for quick lookup
-    expense_map = {item['date_only']: float(item['total']) for item in daily_expenses}
-    income_map = {item['date_only']: float(item['total']) for item in daily_income_qs}
+    # Aggregate in Python to avoid SQLite TruncDate issues
+    expense_map = {}
+    for exp in relevant_expenses:
+        local_date = timezone.localtime(exp.date).date()
+        expense_map[local_date] = expense_map.get(local_date, 0) + float(exp.amount)
+        
+    income_map = {}
+    for inc in relevant_income:
+        local_date = timezone.localtime(inc.date).date()
+        income_map[local_date] = income_map.get(local_date, 0) + float(inc.amount)
     
     chart_dates = []
     expense_chart_data = []
@@ -77,7 +86,9 @@ def dashboard(request):
     # Active Pockets (Budgets)
     active_budgets = Budget.objects.filter(user=request.user).order_by('end_date')
     
-    pockets = []
+    weekly_pockets = []
+    monthly_pockets = []
+    
     for budget in active_budgets:
         # Check if active
         is_active = True
@@ -100,7 +111,7 @@ def dashboard(request):
             spent = expenses_query.aggregate(Sum('amount'))['amount__sum'] or 0
             remaining = (budget.limit_amount or 0) - spent
             
-            pockets.append({
+            pocket_data = {
                 'category': budget.category,
                 'limit': budget.limit_amount,
                 'spent': spent,
@@ -108,7 +119,12 @@ def dashboard(request):
                 'period': budget.period,
                 'end_date': budget.end_date,
                 'start_date': budget.start_date
-            })
+            }
+            
+            if budget.period == 'Weekly':
+                weekly_pockets.append(pocket_data)
+            else:
+                monthly_pockets.append(pocket_data)
 
     context = {
         'income_total': total_income,
@@ -124,8 +140,9 @@ def dashboard(request):
         'income_chart_data': income_chart_data,
         'categories': categories,
         'recent_transactions': recent_transactions,
-        'savings_goals': SavingsGoal.objects.filter(user=request.user),
-        'budgets': pockets,
+        # 'savings_goals': SavingsGoal.objects.filter(user=request.user), # Removed from view as per request
+        'weekly_budgets': weekly_pockets,
+        'monthly_budgets': monthly_pockets,
         'reminders': Reminder.objects.filter(user=request.user, is_completed=False).order_by('reminder_date'),
     }
     return render(request, 'finance/dashboard.html', context)
@@ -187,6 +204,7 @@ def add_income(request):
                 
             income.save()
             
+            # Create automatic savings (20%) - Now handled by signals
             return redirect('dashboard')
     else:
         form = IncomeForm(user=request.user)
@@ -262,11 +280,21 @@ def add_savings(request):
 @login_required
 def add_budget(request):
     if request.method == 'POST':
-        form = BudgetForm(request.POST)
+        form = BudgetForm(request.POST, user=request.user)
         if form.is_valid():
             budget = form.save(commit=False)
             budget.user = request.user
             
+            # Handle Category
+            category = form.cleaned_data.get('category')
+            new_cat = form.cleaned_data.get('new_category')
+            if category == 'Add New' and new_cat:
+                from .models import ExpenseCategory
+                ExpenseCategory.objects.get_or_create(user=request.user, name=new_cat)
+                budget.category = new_cat
+            else:
+                budget.category = category
+
             # Calculate end_date based on period
             if budget.period == 'Weekly':
                 budget.end_date = budget.start_date + timezone.timedelta(days=6)
@@ -277,7 +305,7 @@ def add_budget(request):
             budget.save()
             return redirect('dashboard')
     else:
-        form = BudgetForm()
+        form = BudgetForm(user=request.user)
     return render(request, 'finance/form.html', {'form': form, 'title': 'Set Budget'})
 
 @login_required
@@ -318,7 +346,13 @@ def complete_reminder(request, pk):
     reminder = get_object_or_404(Reminder, pk=pk, user=request.user)
     reminder.is_completed = True
     reminder.save()
-    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+    return redirect(request.META.get('HTTP_REFERER', 'add_reminder'))
+
+@login_required
+def delete_reminder(request, pk):
+    reminder = get_object_or_404(Reminder, pk=pk, user=request.user)
+    reminder.delete()
+    return redirect(request.META.get('HTTP_REFERER', 'add_reminder'))
 
 @login_required
 def finance_report(request):
@@ -332,6 +366,27 @@ def finance_report(request):
         'expense_total': expense_total,
     }
     return render(request, 'finance/report.html', context)
+
+@login_required
+def download_report_pdf(request):
+    expenses_by_category = Expense.objects.filter(user=request.user).values('category').annotate(total=Sum('amount')).order_by('-total')
+    income_total = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    expense_total = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    context = {
+        'expenses_by_category': expenses_by_category,
+        'income_total': income_total,
+        'expense_total': expense_total,
+        'user': request.user,
+    }
+    pdf = render_to_pdf('finance/report_pdf.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Financial_Report_{timezone.now().strftime('%Y-%m-%d')}.pdf"
+        content = f"attachment; filename={filename}"
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not found")
 
 @login_required
 def delete_income(request, pk):

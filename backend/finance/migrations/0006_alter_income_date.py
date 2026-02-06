@@ -7,7 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finance', '0003_alter_income_source_incomecategory'),
+        ('finance', '0005_alter_income_source_incomecategory'),
     ]
 
     operations = [

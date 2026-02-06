@@ -40,6 +40,7 @@ class Expense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.CharField(max_length=50) # Removing choices to allow dynamic categories
     payment_method = models.CharField(max_length=50, default='Cash')
+    source_type = models.CharField(max_length=10, default='Income', choices=[('Income', 'Income'), ('Savings', 'Savings')])
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=timezone.now)
     description = models.TextField(blank=True, null=True)
@@ -74,6 +75,7 @@ class Reminder(models.Model):
     message = models.TextField(blank=True, null=True)
     reminder_date = models.DateTimeField()
     is_completed = models.BooleanField(default=False)
+    email_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
