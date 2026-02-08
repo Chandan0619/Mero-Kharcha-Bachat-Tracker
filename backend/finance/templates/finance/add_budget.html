@@ -1,17 +1,18 @@
 {% extends 'finance/base.html' %}
 {% load static %}
+{% load humanize %}
 
-{% block title %}Add Expense{% endblock %}
-{% block page_title %}Add Expense{% endblock %}
+{% block title %}Set Budget{% endblock %}
+{% block page_title %}Set Budget{% endblock %}
 
 {% block content %}
 <style>
-    .income-container {
+    .budget-container {
         max-width: 800px;
         margin: 0 auto;
     }
 
-    .income-header {
+    .budget-header {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         color: white;
         padding: 40px 30px;
@@ -21,18 +22,18 @@
         z-index: 1;
     }
 
-    .income-header h2 {
+    .budget-header h2 {
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 8px;
     }
 
-    .income-header p {
+    .budget-header p {
         opacity: 0.9;
         font-size: 1rem;
     }
 
-    .income-card {
+    .budget-card {
         background: white;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
@@ -79,27 +80,12 @@
 
     .input-wrapper .form-control:focus,
     .input-wrapper .form-select:focus {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
         outline: none;
     }
 
-    #id_description {
-        height: 50px;
-        padding: 14px 16px;
-        line-height: 1.4;
-        resize: none;
-    }
-
-    /* Date and Time Row */
-    .datetime-row {
-        display: flex;
-        gap: 16px;
-        margin-top: 10px;
-    }
-
     .date-input-container {
-        flex: 2;
         display: flex;
         align-items: center;
         border: 1px solid #e5e7eb;
@@ -109,8 +95,9 @@
     }
 
     .date-input-container i {
-        color: blue;
+        color: #6366f1;
         cursor: pointer;
+        margin-left: 10px;
     }
 
     .date-display {
@@ -132,33 +119,6 @@
         text-align: center;
         width: 100%;
         outline: none;
-    }
-
-    .time-input-container {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 0 16px;
-        height: 50px;
-        gap: 10px;
-    }
-
-    .time-input-container input {
-        border: none;
-        background: transparent;
-        font-family: inherit;
-        font-size: 1rem;
-        font-weight: 500;
-        width: 100%;
-        outline: none;
-        text-align: center;
-    }
-
-    .time-input-container i {
-        color:blue;
-        font-size: 1.2rem;
     }
 
     .btn-submit {
@@ -204,32 +164,32 @@
     .arrow-btn {
         background: none;
         border: none;
-        color: var(--accent-blue);
+        color: #10b981;
         cursor: pointer;
         font-size: 1rem;
         padding: 5px;
     }
 
     .arrow-btn:hover {
-        color: var(--danger);
+        color: #059669;
     }
 </style>
 
-<div class="income-container">
-    <div class="income-header">
-        <h2>Add Expense</h2>
-        <p>Record your spending and manage your budget.</p>
+<div class="budget-container">
+    <div class="budget-header">
+        <h2>Set Budget</h2>
+        <p>Define spending limits to stay on top of your financial goals.</p>
     </div>
 
-    <div class="income-card">
-        <form method="post" id="expense-form">
+    <div class="budget-card">
+        <form method="post" id="budget-form">
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="{{ form.amount.id_for_label }}">Expense (Amount)</label>
+                <label for="{{ form.limit_amount.id_for_label }}">Limit Amount</label>
                 <div class="input-wrapper">
                     <i>Rs.</i>
-                    {{ form.amount }}
+                    {{ form.limit_amount }}
                 </div>
             </div>
 
@@ -250,74 +210,112 @@
             </div>
 
             <div class="form-group">
-                <label for="{{ form.payment_method.id_for_label }}">Payment Method</label>
+                <label for="{{ form.period.id_for_label }}">Period</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-credit-card"></i>
-                    {{ form.payment_method }}
-                </div>
-
-                <div id="new-pm-container" class="new-input-container">
-                    <label for="{{ form.new_payment_method.id_for_label }}">New Payment Method Name</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-plus"></i>
-                        {{ form.new_payment_method }}
-                    </div>
+                    <i class="fa-solid fa-calendar-check"></i>
+                    {{ form.period }}
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="{{ form.source_type.id_for_label }}">Source</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-wallet"></i>
-                    {{ form.source_type }}
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.description.id_for_label }}">Notes</label>
-                <div class="input-wrapper">
-                    {{ form.description }}
-                </div>
-            </div>
-
-            <div class="datetime-row">
+                <label for="{{ form.start_date.id_for_label }}">Start Date</label>
                 <div class="date-input-container">
                     <button type="button" class="arrow-btn" id="prev-day"><i
                             class="fa-solid fa-chevron-left"></i></button>
                     <div class="date-display">
-                        {{ form.date }}
+                        {{ form.start_date }}
                     </div>
                     <button type="button" class="arrow-btn" id="next-day"><i
                             class="fa-solid fa-chevron-right"></i></button>
                     <i class="fa-solid fa-calendar-days" id="calendar-trigger"></i>
                 </div>
-                <div class="time-input-container">
-                    {{ form.time }}
-                    <i class="fa-solid fa-clock"></i>
-                </div>
             </div>
 
-            <button type="submit" class="btn-submit">Save</button>
+            <button type="submit" class="btn-submit">Save Budget</button>
             <a href="{% url 'dashboard' %}" class="cancel-link">Cancel and Go Back</a>
         </form>
+    </div>
+
+    <!-- Active Budgets List -->
+    <div class="budget-list-container" style="margin-top: 50px;">
+        <h3
+            style="margin-bottom: 24px; color: var(--text-main); font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+            Active Budgets</h3>
+
+        <div class="budget-sections" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Weekly -->
+            <div class="budget-group">
+                <h4 style="color: #eab308; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-calendar-week"></i> Weekly
+                </h4>
+                {% for b in weekly_budgets %}
+                <div class="budget-item-card"
+                    style="background: white; padding: 16px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 16px; border-left: 4px solid #eab308; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.1rem;">{{ b.category }}</div>
+                        <div style="color: #ef4444; font-weight: 600;">Limit: Rs. {{ b.limit_f }}</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-top: 4px;">
+                            <i class="fa-solid fa-clock"></i>
+                            {{ b.start_date|date:"M d" }} -
+                            {{ b.end_date|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    <a href="{% url 'delete_budget' b.pk %}"
+                        onclick="return confirm('Are you sure you want to delete this budget?')"
+                        style="color: #ef4444; font-size: 1.2rem; padding: 8px; border-radius: 6px; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#fee2e2'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+                {% empty %}
+                <p style="color: #9ca3af; font-style: italic;">No weekly budgets set.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Monthly -->
+            <div class="budget-group">
+                <h4 style="color: #ec4899; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-calendar-days"></i> Monthly
+                </h4>
+                {% for b in monthly_budgets %}
+                <div class="budget-item-card"
+                    style="background: white; padding: 16px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 16px; border-left: 4px solid #ec4899; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.1rem;">{{ b.category }}</div>
+                        <div style="color: #ef4444; font-weight: 600;">Limit: Rs. {{ b.limit_f }}</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-top: 4px;">
+                            <i class="fa-solid fa-clock"></i>
+                            {{ b.start_date|date:"M d" }} -
+                            {{ b.end_date|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    <a href="{% url 'delete_budget' b.pk %}"
+                        onclick="return confirm('Are you sure you want to delete this budget?')"
+                        style="color: #ef4444; font-size: 1.2rem; padding: 8px; border-radius: 6px; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#fee2e2'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+                {% empty %}
+                <p style="color: #9ca3af; font-style: italic;">No monthly budgets set.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const catSelect = document.getElementById('id_category');
-        const pmSelect = document.getElementById('id_payment_method');
         const newCatContainer = document.getElementById('new-category-container');
-        const newPmContainer = document.getElementById('new-pm-container');
         const newCatInput = document.getElementById('id_new_category');
-        const newPmInput = document.getElementById('id_new_payment_method');
-
-        const dateInput = document.getElementById('id_date');
+        const dateInput = document.getElementById('id_start_date');
         const prevDayBtn = document.getElementById('prev-day');
         const nextDayBtn = document.getElementById('next-day');
         const calendarTrigger = document.getElementById('calendar-trigger');
 
-        // Dynamic Field Toggles
         function toggleNewField(select, container, input) {
             if (select.value === 'Add New') {
                 container.style.display = 'block';
@@ -329,13 +327,8 @@
         }
 
         catSelect.addEventListener('change', () => toggleNewField(catSelect, newCatContainer, newCatInput));
-        pmSelect.addEventListener('change', () => toggleNewField(pmSelect, newPmContainer, newPmInput));
-
-        // Initial state
         toggleNewField(catSelect, newCatContainer, newCatInput);
-        toggleNewField(pmSelect, newPmContainer, newPmInput);
 
-        // Date navigation
         function adjustDate(days) {
             let currentVal = dateInput.value;
             if (!currentVal) {

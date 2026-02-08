@@ -1,5 +1,6 @@
 {% extends 'finance/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}All Transactions{% endblock %}
 {% block page_title %}All Transactions{% endblock %}
@@ -127,7 +128,7 @@
                 </td>
                 <td
                     class="amount-cell {% if tx.transaction_type == 'Income' %}text-success{% else %}text-danger{% endif %}">
-                    Rs. {{ tx.amount|floatformat:0 }}
+                    Rs. {{ tx.amount|floatformat:0|intcomma }}
                 </td>
                 <td style="text-align: center;">
                     {% if tx.transaction_type == 'Income' %}

@@ -1,5 +1,7 @@
+{% load humanize %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+
 <head>
     <title>Financial Report</title>
     <style type="text/css">
@@ -7,41 +9,54 @@
             font-weight: 200;
             font-size: 14px;
         }
+
         h2 {
             font-size: 24px;
             color: #333;
             text-align: center;
             margin-bottom: 20px;
         }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
         }
+
         .stats {
             width: 100%;
             margin-bottom: 30px;
         }
+
         .stats td {
             width: 50%;
             padding: 10px;
             text-align: center;
             border: 1px solid #ddd;
         }
+
         .stat-label {
             font-weight: bold;
             color: #666;
         }
+
         .stat-value {
             font-size: 18px;
             margin-top: 5px;
         }
-        .text-success { color: #28a745; }
-        .text-danger { color: #dc3545; }
-        
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
         table.expenses {
             width: 100%;
             border-collapse: collapse;
         }
+
         table.expenses th {
             background-color: #f8f9fa;
             color: #333;
@@ -49,10 +64,12 @@
             text-align: left;
             border-bottom: 2px solid #ddd;
         }
+
         table.expenses td {
             padding: 10px;
             border-bottom: 1px solid #eee;
         }
+
         .footer {
             margin-top: 50px;
             text-align: center;
@@ -61,9 +78,11 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h2>Financial Report</h2>
+        <p>Period: {{ start_date|default:"Beginning" }} to {{ end_date|default:"Today" }}</p>
         <p>Generated on: {% now "F j, Y" %}</p>
         <p>User: {{ user.username }}</p>
     </div>
@@ -72,32 +91,42 @@
         <tr>
             <td>
                 <div class="stat-label">Total Income</div>
-                <div class="stat-value text-success">Rs. {{ income_total }}</div>
+                <div class="stat-value text-success">Rs. {{ income_total|floatformat:0|intcomma }}</div>
             </td>
             <td>
                 <div class="stat-label">Total Expenses</div>
-                <div class="stat-value text-danger">Rs. {{ expense_total }}</div>
+                <div class="stat-value text-danger">Rs. {{ expense_total|floatformat:0|intcomma }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="stat-label">Net Balance</div>
+                <div class="stat-value {% if net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    Rs. {{ net_balance|floatformat:0|intcomma }}
+                </div>
             </td>
         </tr>
     </table>
 
-    <h3>Expenses by Category</h3>
+    <h3>Detailed Expense Log</h3>
     <table class="expenses">
         <thead>
             <tr>
+                <th>Date</th>
                 <th>Category</th>
-                <th>Total Amount</th>
+                <th style="text-align: right;">Amount</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in expenses_by_category %}
+            {% for item in expenses %}
             <tr>
+                <td>{{ item.date|date:"M d, Y" }}</td>
                 <td>{{ item.category }}</td>
-                <td class="text-danger">Rs. {{ item.total }}</td>
+                <td class="text-danger" style="text-align: right;">Rs. {{ item.amount|floatformat:0|intcomma }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="2" style="text-align: center; color: #999;">No expenses recorded.</td>
+                <td colspan="3" style="text-align: center; color: #999;">No expenses recorded.</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -107,4 +136,5 @@
         <p>Calculated based on your tracked data.</p>
     </div>
 </body>
+
 </html>

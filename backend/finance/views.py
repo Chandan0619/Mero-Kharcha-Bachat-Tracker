@@ -3,9 +3,11 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.utils import timezone
+from datetime import datetime
 from .models import Income, Expense, SavingsGoal, Budget, Reminder, Savings
 from .forms import IncomeForm, ExpenseForm, SavingsGoalForm, BudgetForm, ReminderForm
 from .utils import render_to_pdf
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 @login_required
 def dashboard(request):
@@ -20,10 +22,26 @@ def dashboard(request):
     yesterday = today - timezone.timedelta(days=1)
     last_30_days = today - timezone.timedelta(days=30)
 
+    today_start = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+    today_end = timezone.make_aware(datetime.combine(today, datetime.max.time()))
+    yesterday_start = timezone.make_aware(datetime.combine(yesterday, datetime.min.time()))
+    yesterday_end = timezone.make_aware(datetime.combine(yesterday, datetime.max.time()))
+
     # Specific time period expenses
-    today_expense = Expense.objects.filter(user=request.user, date__date=today).aggregate(Sum('amount'))['amount__sum'] or 0
-    yesterday_expense = Expense.objects.filter(user=request.user, date__date=yesterday).aggregate(Sum('amount'))['amount__sum'] or 0
-    last_30_days_expense = Expense.objects.filter(user=request.user, date__date__gte=last_30_days).aggregate(Sum('amount'))['amount__sum'] or 0
+    today_expense = Expense.objects.filter(
+        user=request.user, 
+        date__range=(today_start, today_end)
+    ).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    yesterday_expense = Expense.objects.filter(
+        user=request.user, 
+        date__range=(yesterday_start, yesterday_end)
+    ).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    last_30_days_expense = Expense.objects.filter(
+        user=request.user, 
+        date__gte=timezone.make_aware(datetime.combine(last_30_days, datetime.min.time()))
+    ).aggregate(Sum('amount'))['amount__sum'] or 0
 
     # Chart data: daily expenses and income for the last 7 days (including today)
     seven_days_ago = today - timezone.timedelta(days=6)
@@ -82,6 +100,8 @@ def dashboard(request):
         
     # Sort merged list by date descending and take top 5
     recent_transactions = sorted(recent_transactions, key=lambda x: x.date, reverse=True)[:5]
+    for tx in recent_transactions:
+        tx.amount_f = intcomma(int(tx.amount))
 
     # Active Pockets (Budgets)
     active_budgets = Budget.objects.filter(user=request.user).order_by('end_date')
@@ -114,8 +134,11 @@ def dashboard(request):
             pocket_data = {
                 'category': budget.category,
                 'limit': budget.limit_amount,
+                'limit_f': intcomma(int(budget.limit_amount)),
                 'spent': spent,
+                'spent_f': intcomma(int(spent)),
                 'remaining': remaining,
+                'remaining_f': intcomma(int(remaining)),
                 'period': budget.period,
                 'end_date': budget.end_date,
                 'start_date': budget.start_date
@@ -132,6 +155,16 @@ def dashboard(request):
         'savings': total_savings,
         'automated_savings': total_automated_savings,
         'unallocated_savings': unallocated_savings,
+        
+        # Formatted values for template display
+        'income_total_f': intcomma(int(total_income)),
+        'expense_total_f': intcomma(int(total_expense)),
+        'savings_f': intcomma(int(total_savings)),
+        'automated_savings_f': intcomma(int(total_automated_savings)),
+        'unallocated_savings_f': intcomma(int(unallocated_savings)),
+        'today_expense_f': intcomma(int(today_expense)),
+        'last_30_days_expense_f': intcomma(int(last_30_days_expense)),
+        
         'today_expense': today_expense,
         'yesterday_expense': yesterday_expense,
         'last_30_days_expense': last_30_days_expense,
@@ -140,7 +173,6 @@ def dashboard(request):
         'income_chart_data': income_chart_data,
         'categories': categories,
         'recent_transactions': recent_transactions,
-        # 'savings_goals': SavingsGoal.objects.filter(user=request.user), # Removed from view as per request
         'weekly_budgets': weekly_pockets,
         'monthly_budgets': monthly_pockets,
         'reminders': Reminder.objects.filter(user=request.user, is_completed=False).order_by('reminder_date'),
@@ -306,7 +338,28 @@ def add_budget(request):
             return redirect('dashboard')
     else:
         form = BudgetForm(user=request.user)
-    return render(request, 'finance/form.html', {'form': form, 'title': 'Set Budget'})
+    
+    weekly_budgets = Budget.objects.filter(user=request.user, period='Weekly').order_by('-start_date')
+    monthly_budgets = Budget.objects.filter(user=request.user, period='Monthly').order_by('-start_date')
+    
+    for b in weekly_budgets:
+        b.limit_f = intcomma(int(b.limit_amount))
+    for b in monthly_budgets:
+        b.limit_f = intcomma(int(b.limit_amount))
+        
+    context = {
+        'form': form, 
+        'title': 'Set Budget',
+        'weekly_budgets': weekly_budgets,
+        'monthly_budgets': monthly_budgets
+    }
+    return render(request, 'finance/add_budget.html', context)
+
+@login_required
+def delete_budget(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    budget.delete()
+    return redirect('add_budget')
 
 @login_required
 def add_reminder(request):
@@ -356,36 +409,108 @@ def delete_reminder(request, pk):
 
 @login_required
 def finance_report(request):
-    expenses_by_category = Expense.objects.filter(user=request.user).values('category').annotate(total=Sum('amount')).order_by('-total')
-    income_total = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
-    expense_total = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
+    expenses_query = Expense.objects.filter(user=request.user)
+    income_query = Income.objects.filter(user=request.user)
+    
+    if start_date:
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d').date()
+            start_dt = timezone.make_aware(timezone.datetime.combine(sd, timezone.datetime.min.time()))
+            expenses_query = expenses_query.filter(date__gte=start_dt)
+            income_query = income_query.filter(date__gte=start_dt)
+        except ValueError:
+            pass
+            
+    if end_date:
+        try:
+            ed = datetime.strptime(end_date, '%Y-%m-%d').date()
+            end_dt = timezone.make_aware(timezone.datetime.combine(ed, timezone.datetime.max.time()))
+            expenses_query = expenses_query.filter(date__lte=end_dt)
+            income_query = income_query.filter(date__lte=end_dt)
+        except ValueError:
+            pass
+        
+    expenses_by_category = expenses_query.values('category').annotate(total=Sum('amount')).order_by('-total')
+    income_total = income_query.aggregate(Sum('amount'))['amount__sum'] or 0
+    expense_total = expenses_query.aggregate(Sum('amount'))['amount__sum'] or 0
+    net_balance = income_total - expense_total
+    
+    # Fetch individual expenses for the detailed table
+    expenses = expenses_query.order_by('-date')
+    
+    # Add formatted amounts to lists
+    for item in expenses_by_category:
+        item['total_f'] = intcomma(int(item['total']))
+    
+    for exp in expenses:
+        exp.amount_f = intcomma(int(exp.amount))
+
     context = {
         'expenses_by_category': expenses_by_category,
+        'expenses': expenses,
         'income_total': income_total,
         'expense_total': expense_total,
+        'net_balance': net_balance,
+        'income_total_f': intcomma(int(income_total)),
+        'expense_total_f': intcomma(int(expense_total)),
+        'net_balance_f': intcomma(int(net_balance)),
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'finance/report.html', context)
 
 @login_required
 def download_report_pdf(request):
-    expenses_by_category = Expense.objects.filter(user=request.user).values('category').annotate(total=Sum('amount')).order_by('-total')
-    income_total = Income.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
-    expense_total = Expense.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    expenses_query = Expense.objects.filter(user=request.user)
+    income_query = Income.objects.filter(user=request.user)
+    
+    if start_date:
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d').date()
+            start_dt = timezone.make_aware(timezone.datetime.combine(sd, timezone.datetime.min.time()))
+            expenses_query = expenses_query.filter(date__gte=start_dt)
+            income_query = income_query.filter(date__gte=start_dt)
+        except ValueError:
+            pass
+            
+    if end_date:
+        try:
+            ed = datetime.strptime(end_date, '%Y-%m-%d').date()
+            end_dt = timezone.make_aware(timezone.datetime.combine(ed, timezone.datetime.max.time()))
+            expenses_query = expenses_query.filter(date__lte=end_dt)
+            income_query = income_query.filter(date__lte=end_dt)
+        except ValueError:
+            pass
+        
+    expenses_by_category = expenses_query.values('category').annotate(total=Sum('amount')).order_by('-total')
+    income_total = income_query.aggregate(Sum('amount'))['amount__sum'] or 0
+    expense_total = expenses_query.aggregate(Sum('amount'))['amount__sum'] or 0
+    net_balance = income_total - expense_total
+    
+    # Fetch individual expenses for the detailed table
+    expenses = expenses_query.order_by('-date')
     
     context = {
         'expenses_by_category': expenses_by_category,
+        'expenses': expenses,
         'income_total': income_total,
         'expense_total': expense_total,
+        'net_balance': net_balance,
         'user': request.user,
+        'start_date': start_date,
+        'end_date': end_date,
     }
-    pdf = render_to_pdf('finance/report_pdf.html', context)
-    if pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
+    pdf_response = render_to_pdf('finance/report_pdf.html', context)
+    if pdf_response:
         filename = f"Financial_Report_{timezone.now().strftime('%Y-%m-%d')}.pdf"
-        content = f"attachment; filename={filename}"
-        response['Content-Disposition'] = content
-        return response
+        pdf_response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return pdf_response
     return HttpResponse("Not found")
 
 @login_required

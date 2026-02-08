@@ -251,44 +251,41 @@
 </style>
 
 <div class="dashboard-grid">
-    <!-- Total Income -->
+    <!-- Today's Expense -->
     <div class="stat-card">
         <div class="stat-info">
-            <span class="stat-label">Total Income</span>
-            <span class="stat-value-i">Rs. {{ income_total|floatformat:0|intcomma }}</span>
+            <span class="stat-label">Today's Expense</span>
+            <span class="stat-value text-danger">Rs. {{ today_expense_f }}</span>
         </div>
-        <div class="stat-icon icon-green">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
+        <div class="stat-icon icon-red">
+            <i class="fa-solid fa-money-bill-trend-up"></i>
         </div>
     </div>
     <!-- Total Expense -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Total Expense</span>
-            <span class="stat-value-e">Rs. {{ expense_total|floatformat:0|intcomma }}</span>
+            <span class="stat-value-e">Rs. {{ expense_total_f }}</span>
         </div>
         <div class="stat-icon icon-red">
             <i class="fa-solid fa-money-bill-trend-up"></i>
         </div>
     </div>
-    <!-- Net Savings (Total Surplus) -->
+    <!-- Total Income -->
     <div class="stat-card">
         <div class="stat-info">
-            <span class="stat-label">Total Surplus</span>
-            <span class="stat-value {% if savings >= 0 %}text-success{% else %}text-danger{% endif %}">
-                Rs. {{ savings|floatformat:0|intcomma }}
-            </span>
-            <div class="stat-subtext">Cash: Rs. {{ unallocated_savings|floatformat:0|intcomma }}</div>
+            <span class="stat-label">Total Income</span>
+            <span class="stat-value-i">Rs. {{ income_total_f }}</span>
         </div>
-        <div class="stat-icon icon-blue">
-            <i class="fa-solid fa-wallet"></i>
+        <div class="stat-icon icon-green">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
         </div>
     </div>
     <!-- Accumulated Savings (Automated) -->
     <div class="stat-card">
         <div class="stat-info">
             <span class="stat-label">Auto Savings</span>
-            <span class="stat-value" style="color: #8b5cf6;">Rs. {{ automated_savings|floatformat:0|intcomma }}</span>
+            <span class="stat-value" style="color: #8b5cf6;">Rs. {{ automated_savings_f }}</span>
             <div class="stat-subtext">20% rule active</div>
         </div>
         <div class="stat-icon icon-purple">
@@ -314,8 +311,8 @@
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th style="text-align: right;">Spent</th>
                     <th style="text-align: right;">Left</th>
+                    <th style="text-align: right;">Spent</th>
                 </tr>
             </thead>
             <tbody>
@@ -323,12 +320,18 @@
                 <tr>
                     <td>
                         <div style="font-weight: 600;">{{ b.category }}</div>
-                        <div style="font-size: 0.75rem; color: #6b7280;">Ends {{ b.end_date|date:"M d" }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">
+                            Ends {{ b.end_date|date:"M d" }}
+                        </div>
                     </td>
-                    <td style="text-align: right; color: #ef4444;">Rs. {{ b.spent|floatformat:0|intcomma }}</td>
-                    <td
-                        style="text-align: right; font-weight: 700; color: {% if b.remaining < 0 %}#ef4444{% else %}#10b981{% endif %};">
-                        Rs. {{ b.remaining|floatformat:0|intcomma }}
+                    <td style="text-align: right; font-weight: 700; font-size: 1.1rem;">
+                        {% if b.remaining < 0 %} <span style="color: #ef4444;">Rs. {{ b.remaining_f }}</span>
+                            {% else %}
+                            <span style="color: #10b981;">Rs. {{ b.remaining_f }}</span>
+                            {% endif %}
+                    </td>
+                    <td style="text-align: right; color: #ef4444; font-weight: 700; font-size: 1.1rem;">
+                        Rs. {{ b.spent_f }}
                     </td>
                 </tr>
                 {% empty %}
@@ -349,8 +352,8 @@
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th style="text-align: right;">Spent</th>
                     <th style="text-align: right;">Left</th>
+                    <th style="text-align: right;">Spent</th>
                 </tr>
             </thead>
             <tbody>
@@ -358,12 +361,18 @@
                 <tr>
                     <td>
                         <div style="font-weight: 600;">{{ b.category }}</div>
-                        <div style="font-size: 0.75rem; color: #6b7280;">Ends {{ b.end_date|date:"M d" }}</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">
+                            Ends {{ b.end_date|date:"M d" }}
+                        </div>
                     </td>
-                    <td style="text-align: right; color: #ef4444;">Rs. {{ b.spent|floatformat:0|intcomma }}</td>
-                    <td
-                        style="text-align: right; font-weight: 700; color: {% if b.remaining < 0 %}#ef4444{% else %}#10b981{% endif %};">
-                        Rs. {{ b.remaining|floatformat:0|intcomma }}
+                    <td style="text-align: right; font-weight: 700; font-size: 1.1rem;">
+                        {% if b.remaining < 0 %} <span style="color: #ef4444;">Rs. {{ b.remaining_f }}</span>
+                            {% else %}
+                            <span style="color: #10b981;">Rs. {{ b.remaining_f }}</span>
+                            {% endif %}
+                    </td>
+                    <td style="text-align: right; color: #ef4444; font-weight: 700; font-size: 1.1rem;">
+                        Rs. {{ b.spent_f }}
                     </td>
                 </tr>
                 {% empty %}
@@ -404,9 +413,12 @@
                         {{ tx.transaction_type }}
                     </span>
                 </td>
-                <td style="text-align: right;"
-                    class="amount-cell {% if tx.transaction_type == 'Income' %}text-success{% else %}text-danger{% endif %}">
-                    Rs. {{ tx.amount|floatformat:0|intcomma }}
+                <td style="text-align: right;" class="amount-cell">
+                    {% if tx.transaction_type == 'Income' %}
+                    <span class="text-success">Rs. {{ tx.amount_f }}</span>
+                    {% else %}
+                    <span class="text-danger">Rs. {{ tx.amount_f }}</span>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %}
