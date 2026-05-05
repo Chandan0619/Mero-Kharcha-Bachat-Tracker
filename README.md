@@ -1,6 +1,6 @@
-#**💰 Mero Kharcha & Bachat Tracker System** - Track and manage expenses with ease
+**💰 Mero Kharcha & Bachat Tracker System** - Track and manage expenses with ease
 
-##**👥 Team Members**
+**👥 Team Members**
 
 ● Chandan Kumar Chaudhary
 
@@ -13,7 +13,7 @@
 ● Lasata Dangol
 
 
-### 📌 About Project
+📌 About Project
 Mero Kharcha & Bachat Tracker is a web-based application designed to help users manage their finances efficiently and conveniently.
 
 The system is primarily focused on employees, enabling them to:
@@ -28,7 +28,7 @@ The system is primarily focused on employees, enabling them to:
 
 It simplifies personal finance management through automation and clear reporting.
 
-####**✨ Features**
+**✨ Features**
 
 💵 Income & Expense Management:
 
@@ -67,7 +67,7 @@ It simplifies personal finance management through automation and clear reporting
 ● Emergency access to saved funds
 
 
-#####**🛠️ Tech Stack**
+**🛠️ Tech Stack**
 
 ● Frontend: HTML, CSS, JS
 
@@ -76,23 +76,23 @@ It simplifies personal finance management through automation and clear reporting
 ● Database: MySQL
 
 
-######**🎯 Target Users**
+**🎯 Target Users**
 
 ● Employees
 
 ● Individuals managing personal finances
 
 
-#######**📷 Screenshots**
-<img width="1899" height="862" alt="Screenshot 2026-03-26 003852" src="https://github.com/user-attachments/assets/be747e5f-1374-4e75-b7ce-8769bd3015de" />
+**📷 Screenshots**
+<img width="1500" height="600" alt="Screenshot 2026-03-26 003852" src="https://github.com/user-attachments/assets/be747e5f-1374-4e75-b7ce-8769bd3015de" /><br>
 
-<img width="1918" height="867" alt="Screenshot 2026-03-26 003923" src="https://github.com/user-attachments/assets/157b50d0-5f92-44ba-86e0-112e7e005401" />
+<img width="1500" height="600" alt="Screenshot 2026-03-26 003923" src="https://github.com/user-attachments/assets/157b50d0-5f92-44ba-86e0-112e7e005401" /><br>
 
-<img width="1905" height="863" alt="Screenshot 2026-03-26 004431" src="https://github.com/user-attachments/assets/55db10a6-a356-4217-9aa9-2b3bcccf3d3d" />
+<img width="1500" height="600" alt="Screenshot 2026-03-26 004431" src="https://github.com/user-attachments/assets/55db10a6-a356-4217-9aa9-2b3bcccf3d3d" /><br>
 
-<img width="1899" height="864" alt="Screenshot 2026-03-26 004507" src="https://github.com/user-attachments/assets/71ab4188-6b4b-437b-84df-ace4cef3df3b" />
+<img width="1500" height="600" alt="Screenshot 2026-03-26 004507" src="https://github.com/user-attachments/assets/71ab4188-6b4b-437b-84df-ace4cef3df3b" /><br>
 
-<img width="1901" height="863" alt="Screenshot 2026-03-26 004915" src="https://github.com/user-attachments/assets/73a861c4-45da-4a03-8b05-aa32f5e12f38" />
+<img width="1500" height="600" alt="Screenshot 2026-03-26 004915" src="https://github.com/user-attachments/assets/73a861c4-45da-4a03-8b05-aa32f5e12f38" />
 
 
 
