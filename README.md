@@ -63,17 +63,26 @@ It simplifies personal finance management through automation and clear reporting
   
 ---
 
-**📷 Screenshots**
+## 📷 Screenshots
 
-<img width="1500" height="600" alt="Screenshot 2026-03-26 003852" src="https://github.com/user-attachments/assets/be747e5f-1374-4e75-b7ce-8769bd3015de" /><br>
+### 🚀 Landing / Getting started
+<img width="100%" alt="Screenshot 2026-03-26 003852" src="https://github.com/user-attachments/assets/2e1e195b-ad1c-402d-897a-c4d3cc8c32ea" />
 
-<img width="1500" height="600" alt="Screenshot 2026-03-26 003923" src="https://github.com/user-attachments/assets/157b50d0-5f92-44ba-86e0-112e7e005401" /><br>
+### 🔐 Secure login / authentication
+<img width="100%" alt="Screenshot 2026-03-26 003923" src="https://github.com/user-attachments/assets/b6cf8981-a83a-463a-a183-564366d581cc" />
 
-<img width="1500" height="600" alt="Screenshot 2026-03-26 004431" src="https://github.com/user-attachments/assets/55db10a6-a356-4217-9aa9-2b3bcccf3d3d" /><br>
+### 🖥️ Dashboard / Overview
+<img width="100%" alt="Screenshot 2026-03-26 004431" src="https://github.com/user-attachments/assets/3c838d36-5779-498b-a7e2-847f3ca46706" />
 
-<img width="1500" height="600" alt="Screenshot 2026-03-26 004507" src="https://github.com/user-attachments/assets/71ab4188-6b4b-437b-84df-ace4cef3df3b" /><br>
+### 💵 Income & Expense Tracking
+<img width="100%" alt="Screenshot 2026-03-26 004507" src="https://github.com/user-attachments/assets/b792dbeb-5e8d-4f9f-a1c0-3d1d129a1284" />
 
-<img width="1500" height="600" alt="Screenshot 2026-03-26 004915" src="https://github.com/user-attachments/assets/73a861c4-45da-4a03-8b05-aa32f5e12f38" />
+### ⏰ Reminders System
+<img width="100%" alt="127 0 0 1_8000_finance_add-reminder_ (1)" src="https://github.com/user-attachments/assets/4d023dd4-01e4-4c67-b6ef-4534199bf940" />
+
+### 📈 Reports & Analysis
+<img width="100%" alt="Screenshot 2026-03-26 004915" src="https://github.com/user-attachments/assets/7c56cfea-dcf7-496d-ad9f-046089c24d71" />
+
 
 
 
