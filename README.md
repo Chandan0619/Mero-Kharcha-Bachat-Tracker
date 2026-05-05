@@ -64,6 +64,7 @@ It simplifies personal finance management through automation and clear reporting
 ---
 
 **📷 Screenshots**
+
 <img width="1500" height="600" alt="Screenshot 2026-03-26 003852" src="https://github.com/user-attachments/assets/be747e5f-1374-4e75-b7ce-8769bd3015de" /><br>
 
 <img width="1500" height="600" alt="Screenshot 2026-03-26 003923" src="https://github.com/user-attachments/assets/157b50d0-5f92-44ba-86e0-112e7e005401" /><br>
